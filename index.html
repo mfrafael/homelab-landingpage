@@ -6,20 +6,27 @@
   <title>Homelab — mfrafael</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:        #0d1117;
-      --bg2:       #161b22;
-      --bg3:       #21262d;
-      --border:    #30363d;
-      --cyan:      #22d3ee;
-      --cyan-dim:  #0e7490;
-      --text:      #e6edf3;
-      --muted:     #8b949e;
-      --radius:    14px;
+      --orange:      #E57000;
+      --orange-b:    #FF8C00;
+      --orange-dim:  #7A3C00;
+      --orange-glow: rgba(229,112,0,.18);
+      --orange-glow2:rgba(229,112,0,.06);
+      --bg:          #111111;
+      --bg2:         #191919;
+      --bg3:         #222222;
+      --bg4:         #2A2A2A;
+      --border:      #2E2E2E;
+      --border2:     #3A3A3A;
+      --text:        #F0F0F0;
+      --muted:       #888888;
+      --muted2:      #555555;
+      --radius:      16px;
+      --radius-sm:   10px;
     }
 
     html { scroll-behavior: smooth; }
@@ -29,465 +36,890 @@
       background: var(--bg);
       color: var(--text);
       line-height: 1.6;
+      overflow-x: hidden;
     }
 
-    /* ── NAV ─────────────────────────────────────────── */
+    /* ─── SCROLLBAR ─────────────────────────────────── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 3px; }
+
+    /* ─── NAV ───────────────────────────────────────── */
     nav {
-      position: sticky; top: 0; z-index: 100;
-      background: rgba(13,17,23,.85);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border);
-      padding: 0 2rem;
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      height: 64px;
       display: flex; align-items: center; justify-content: space-between;
-      height: 60px;
+      padding: 0 3rem;
+      background: rgba(17,17,17,.8);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
     }
-    .nav-logo { font-weight: 700; font-size: 1.05rem; color: var(--cyan); letter-spacing: -.3px; }
-    .nav-links { display: flex; gap: 1.8rem; }
+    .nav-logo {
+      display: flex; align-items: center; gap: .7rem;
+      font-weight: 800; font-size: 1rem; letter-spacing: -.02em;
+    }
+    .nav-logo-icon {
+      width: 32px; height: 32px;
+      background: var(--orange);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .9rem;
+    }
+    .nav-links { display: flex; gap: 2rem; }
     .nav-links a {
-      color: var(--muted); text-decoration: none; font-size: .9rem; font-weight: 500;
-      transition: color .2s;
+      color: var(--muted); text-decoration: none;
+      font-size: .875rem; font-weight: 500;
+      transition: color .15s;
     }
     .nav-links a:hover { color: var(--text); }
+    .nav-badge {
+      background: var(--orange-glow); border: 1px solid var(--orange-dim);
+      color: var(--orange-b); border-radius: 999px;
+      padding: .3rem .9rem; font-size: .75rem; font-weight: 600;
+    }
 
-    /* ── HERO ────────────────────────────────────────── */
+    /* ─── HERO ──────────────────────────────────────── */
     .hero {
-      min-height: 92vh;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
       text-align: center;
-      padding: 4rem 2rem;
-      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(34,211,238,.07) 0%, transparent 70%);
+      padding: 8rem 2rem 5rem;
+      position: relative; overflow: hidden;
     }
-    .hero-badge {
+
+    /* Grid pattern background */
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(var(--border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse 80% 70% at 50% 50%, black 40%, transparent 100%);
+      opacity: .35;
+    }
+
+    /* Orange glow */
+    .hero::after {
+      content: '';
+      position: absolute;
+      top: -20%; left: 50%; transform: translateX(-50%);
+      width: 900px; height: 600px;
+      background: radial-gradient(ellipse, var(--orange-glow) 0%, transparent 65%);
+      animation: pulse-glow 4s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes pulse-glow {
+      0%, 100% { opacity: .7; transform: translateX(-50%) scale(1); }
+      50%       { opacity: 1;  transform: translateX(-50%) scale(1.08); }
+    }
+
+    .hero-content { position: relative; z-index: 1; max-width: 800px; }
+
+    .hero-eyebrow {
       display: inline-flex; align-items: center; gap: .5rem;
-      background: rgba(34,211,238,.1); border: 1px solid rgba(34,211,238,.25);
-      color: var(--cyan); border-radius: 999px;
-      padding: .35rem 1rem; font-size: .8rem; font-weight: 600;
-      letter-spacing: .04em; text-transform: uppercase; margin-bottom: 1.8rem;
+      background: rgba(229,112,0,.12); border: 1px solid rgba(229,112,0,.3);
+      color: var(--orange-b); border-radius: 999px;
+      padding: .4rem 1.1rem; font-size: .78rem; font-weight: 700;
+      letter-spacing: .08em; text-transform: uppercase; margin-bottom: 2rem;
     }
+    .hero-eyebrow::before {
+      content: '';
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--orange);
+      animation: blink 1.5s ease-in-out infinite;
+    }
+    @keyframes blink { 0%,100% { opacity:1; } 50% { opacity:.3; } }
+
     .hero h1 {
-      font-size: clamp(2.4rem, 6vw, 4rem);
-      font-weight: 800; letter-spacing: -.04em; line-height: 1.1;
-      margin-bottom: 1.2rem;
+      font-size: clamp(2.8rem, 7vw, 5rem);
+      font-weight: 900; letter-spacing: -.05em; line-height: 1.05;
+      margin-bottom: 1.5rem;
     }
-    .hero h1 span { color: var(--cyan); }
-    .hero p {
-      font-size: clamp(1rem, 2vw, 1.2rem);
-      color: var(--muted); max-width: 580px; margin: 0 auto 2.5rem;
+    .hero h1 .gradient {
+      background: linear-gradient(135deg, var(--orange-b) 0%, #FFB347 50%, var(--orange) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
-    .hero-cta {
-      display: inline-flex; gap: 1rem; flex-wrap: wrap; justify-content: center;
+
+    .hero-sub {
+      font-size: clamp(1rem, 2.5vw, 1.2rem);
+      color: var(--muted); max-width: 540px; margin: 0 auto 3rem;
+      font-weight: 400; line-height: 1.7;
     }
+
+    .hero-cta { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+
     .btn {
-      padding: .75rem 1.6rem; border-radius: 8px;
+      display: inline-flex; align-items: center; gap: .5rem;
+      padding: .8rem 1.8rem; border-radius: 10px;
       font-size: .95rem; font-weight: 600; text-decoration: none;
-      transition: all .2s; cursor: pointer; border: none;
+      transition: all .2s; border: none; cursor: pointer;
     }
-    .btn-primary {
-      background: var(--cyan); color: var(--bg);
+    .btn-orange {
+      background: var(--orange);
+      color: #fff;
+      box-shadow: 0 0 24px rgba(229,112,0,.35);
     }
-    .btn-primary:hover { background: #67e8f9; transform: translateY(-1px); }
+    .btn-orange:hover {
+      background: var(--orange-b);
+      box-shadow: 0 0 36px rgba(229,112,0,.55);
+      transform: translateY(-2px);
+    }
     .btn-ghost {
       background: transparent; color: var(--text);
-      border: 1px solid var(--border);
+      border: 1px solid var(--border2);
     }
-    .btn-ghost:hover { background: var(--bg3); border-color: var(--muted); }
+    .btn-ghost:hover { background: var(--bg3); border-color: var(--muted2); transform: translateY(-2px); }
 
+    /* Stats bar */
     .hero-stats {
-      display: flex; gap: 3rem; margin-top: 4rem; flex-wrap: wrap; justify-content: center;
+      display: flex; justify-content: center; gap: 0;
+      margin-top: 5rem; position: relative; z-index: 1;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden; background: var(--bg2);
+      flex-wrap: wrap;
     }
-    .stat { text-align: center; }
-    .stat-value { font-size: 2rem; font-weight: 800; color: var(--cyan); }
-    .stat-label { font-size: .8rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+    .hero-stat {
+      padding: 1.6rem 2.5rem;
+      border-right: 1px solid var(--border);
+      flex: 1; min-width: 140px; text-align: center;
+    }
+    .hero-stat:last-child { border-right: none; }
+    .stat-val {
+      font-size: 2.2rem; font-weight: 900; letter-spacing: -.04em;
+      color: var(--orange-b);
+      font-variant-numeric: tabular-nums;
+    }
+    .stat-label { font-size: .75rem; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; margin-top: .2rem; }
 
-    /* ── SEÇÕES ──────────────────────────────────────── */
-    section { padding: 5rem 2rem; max-width: 1100px; margin: 0 auto; }
-    .section-label {
-      font-size: .75rem; font-weight: 700; color: var(--cyan);
-      text-transform: uppercase; letter-spacing: .1em; margin-bottom: .6rem;
+    /* ─── SECTION BASE ──────────────────────────────── */
+    .section-wrap { max-width: 1140px; margin: 0 auto; padding: 6rem 2rem; }
+
+    .section-tag {
+      display: inline-flex; align-items: center; gap: .5rem;
+      color: var(--orange); font-size: .72rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .12em; margin-bottom: .8rem;
+    }
+    .section-tag::before {
+      content: '';
+      display: block; width: 20px; height: 2px; background: var(--orange); border-radius: 2px;
     }
     .section-title {
-      font-size: clamp(1.6rem, 3.5vw, 2.2rem);
-      font-weight: 800; letter-spacing: -.03em; margin-bottom: .8rem;
+      font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+      font-weight: 800; letter-spacing: -.04em; margin-bottom: .8rem;
     }
-    .section-desc { color: var(--muted); max-width: 560px; font-size: 1rem; margin-bottom: 3rem; }
+    .section-desc {
+      color: var(--muted); font-size: 1.05rem; max-width: 520px; line-height: 1.7;
+      margin-bottom: 3.5rem;
+    }
 
-    /* ── WHY ─────────────────────────────────────────── */
-    .why-grid {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.2rem;
+    .divider { border: none; border-top: 1px solid var(--border); }
+
+    /* ─── BENTO GRID — SERVIÇOS ─────────────────────── */
+    .bento {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      grid-template-rows: auto;
+      gap: 1rem;
     }
-    .why-card {
+
+    .bento-card {
       background: var(--bg2); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 1.6rem;
-      transition: border-color .2s, transform .2s;
+      border-radius: var(--radius); padding: 1.8rem;
+      position: relative; overflow: hidden;
+      transition: border-color .25s, transform .25s, box-shadow .25s;
+      cursor: default;
     }
-    .why-card:hover { border-color: var(--cyan-dim); transform: translateY(-2px); }
-    .why-icon { font-size: 2rem; margin-bottom: .8rem; }
-    .why-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: .4rem; }
-    .why-card p { font-size: .88rem; color: var(--muted); }
+    .bento-card:hover {
+      border-color: var(--orange-dim);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 40px rgba(0,0,0,.4), 0 0 0 1px var(--orange-dim);
+    }
+    .bento-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--orange-dim), transparent);
+      opacity: 0; transition: opacity .25s;
+    }
+    .bento-card:hover::before { opacity: 1; }
 
-    /* ── SERVIÇOS ────────────────────────────────────── */
-    .services-grid {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem;
+    /* Glow on hover */
+    .bento-card::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(circle at 30% 30%, var(--orange-glow2) 0%, transparent 60%);
+      opacity: 0; transition: opacity .3s;
     }
-    .service-card {
-      background: var(--bg2); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 1.4rem 1.6rem;
-      display: flex; gap: 1.1rem; align-items: flex-start;
-      transition: border-color .2s, transform .2s;
+    .bento-card:hover::after { opacity: 1; }
+
+    .bento-card-inner { position: relative; z-index: 1; }
+
+    /* Grid placements */
+    .b-1  { grid-column: span 7; }
+    .b-2  { grid-column: span 5; }
+    .b-3  { grid-column: span 4; }
+    .b-4  { grid-column: span 4; }
+    .b-5  { grid-column: span 4; }
+    .b-6  { grid-column: span 5; }
+    .b-7  { grid-column: span 7; }
+    .b-8  { grid-column: span 6; }
+    .b-9  { grid-column: span 6; }
+    .b-10 { grid-column: span 4; }
+    .b-11 { grid-column: span 4; }
+    .b-12 { grid-column: span 4; }
+
+    .bento-icon {
+      font-size: 2.4rem; margin-bottom: 1rem; display: block;
+      filter: drop-shadow(0 2px 8px rgba(229,112,0,.2));
     }
-    .service-card:hover { border-color: var(--cyan-dim); transform: translateY(-2px); }
-    .service-emoji { font-size: 2rem; flex-shrink: 0; margin-top: .1rem; }
-    .service-info h3 { font-size: .95rem; font-weight: 700; margin-bottom: .25rem; }
-    .service-info p { font-size: .83rem; color: var(--muted); line-height: 1.5; }
-    .service-tag {
-      display: inline-block; margin-top: .5rem;
-      background: rgba(34,211,238,.1); color: var(--cyan);
-      border-radius: 4px; padding: .15rem .55rem;
-      font-size: .7rem; font-weight: 600; letter-spacing: .04em;
+    .bento-title { font-size: 1.05rem; font-weight: 700; margin-bottom: .4rem; }
+    .bento-desc  { font-size: .875rem; color: var(--muted); line-height: 1.6; }
+    .bento-tag {
+      display: inline-block; margin-top: .9rem;
+      background: rgba(229,112,0,.12); color: var(--orange-b);
+      border: 1px solid rgba(229,112,0,.25);
+      border-radius: 6px; padding: .2rem .65rem;
+      font-size: .7rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
     }
 
-    /* ── HARDWARE ────────────────────────────────────── */
+    /* Featured card (large) gets subtle bg pattern */
+    .bento-card.featured {
+      background: linear-gradient(135deg, var(--bg3) 0%, var(--bg2) 100%);
+    }
+    .bento-card.featured .bento-title { font-size: 1.2rem; }
+    .bento-card.featured .bento-desc  { font-size: .9rem; max-width: 360px; }
+
+    /* ─── HARDWARE ──────────────────────────────────── */
     .hw-grid {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.2rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.2rem;
     }
     .hw-card {
       background: var(--bg2); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 1.6rem;
+      border-radius: var(--radius); overflow: hidden;
+      transition: border-color .2s, transform .2s;
     }
-    .hw-icon { font-size: 2.2rem; margin-bottom: 1rem; }
-    .hw-card h3 { font-size: .95rem; font-weight: 700; margin-bottom: .6rem; }
-    .hw-spec { display: flex; justify-content: space-between; padding: .35rem 0; border-bottom: 1px solid var(--border); font-size: .83rem; }
-    .hw-spec:last-child { border-bottom: none; }
-    .hw-spec span:first-child { color: var(--muted); }
-    .hw-spec span:last-child { font-weight: 600; }
+    .hw-card:hover { border-color: var(--orange-dim); transform: translateY(-3px); }
 
-    /* ── STACK ───────────────────────────────────────── */
-    .stack-grid {
-      display: flex; flex-wrap: wrap; gap: .8rem;
+    .hw-header {
+      background: var(--bg3); padding: 1.4rem 1.6rem;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 1rem;
     }
-    .stack-pill {
+    .hw-header-icon {
+      width: 44px; height: 44px;
+      background: var(--orange-glow); border: 1px solid var(--orange-dim);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem; flex-shrink: 0;
+    }
+    .hw-header h3 { font-size: .95rem; font-weight: 700; }
+    .hw-header p  { font-size: .78rem; color: var(--muted); margin-top: .1rem; }
+
+    .hw-specs { padding: 1.2rem 1.6rem; }
+    .hw-spec-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: .55rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: .845rem;
+    }
+    .hw-spec-row:last-child { border-bottom: none; }
+    .hw-spec-row span:first-child { color: var(--muted); }
+    .hw-spec-row span:last-child  { font-weight: 600; font-family: 'JetBrains Mono', monospace; font-size: .82rem; }
+
+    /* ─── POR QUE ────────────────────────────────────── */
+    .why-layout {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start;
+    }
+    .why-heading { font-size: clamp(1.4rem, 2.5vw, 1.9rem); font-weight: 800; letter-spacing: -.03em; line-height: 1.2; margin-bottom: 1.2rem; }
+    .why-heading span { color: var(--orange-b); }
+    .why-intro { color: var(--muted); line-height: 1.75; font-size: .95rem; }
+
+    .why-list { display: flex; flex-direction: column; gap: .9rem; }
+    .why-item {
       background: var(--bg2); border: 1px solid var(--border);
-      border-radius: 8px; padding: .55rem 1.1rem;
-      font-size: .85rem; font-weight: 600;
-      display: flex; align-items: center; gap: .5rem;
+      border-radius: var(--radius-sm); padding: 1.2rem 1.4rem;
+      display: flex; gap: 1rem; align-items: flex-start;
       transition: border-color .2s;
     }
-    .stack-pill:hover { border-color: var(--cyan-dim); }
-
-    /* ── QUOTE ───────────────────────────────────────── */
-    .quote-block {
-      background: var(--bg2); border: 1px solid var(--border);
-      border-left: 3px solid var(--cyan);
-      border-radius: var(--radius); padding: 2rem 2.4rem;
-      margin-top: 1.5rem;
+    .why-item:hover { border-color: var(--orange-dim); }
+    .why-item-icon {
+      width: 36px; height: 36px; flex-shrink: 0;
+      background: var(--orange-glow); border: 1px solid var(--orange-dim);
+      border-radius: 8px; display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
     }
-    .quote-block p { font-size: 1.1rem; font-style: italic; color: var(--muted); line-height: 1.7; }
+    .why-item h4 { font-size: .9rem; font-weight: 700; margin-bottom: .25rem; }
+    .why-item p  { font-size: .82rem; color: var(--muted); line-height: 1.55; }
 
-    /* ── FOOTER ──────────────────────────────────────── */
+    /* comparison table */
+    .comparison {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden; margin-top: 2rem;
+    }
+    .comparison-header {
+      display: grid; grid-template-columns: 1fr 1fr 1fr;
+      background: var(--bg3); border-bottom: 1px solid var(--border);
+      font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .07em;
+    }
+    .comparison-header span { padding: .9rem 1.2rem; }
+    .comparison-header span:not(:last-child) { border-right: 1px solid var(--border); }
+    .comparison-row {
+      display: grid; grid-template-columns: 1fr 1fr 1fr;
+      border-bottom: 1px solid var(--border); font-size: .84rem;
+    }
+    .comparison-row:last-child { border-bottom: none; }
+    .comparison-row span { padding: .8rem 1.2rem; }
+    .comparison-row span:not(:last-child) { border-right: 1px solid var(--border); }
+    .ok  { color: #4ade80; font-weight: 600; }
+    .bad { color: #f87171; font-weight: 600; }
+    .row-label { color: var(--muted); }
+
+    /* ─── STACK ─────────────────────────────────────── */
+    .stack-categories { display: flex; flex-direction: column; gap: 2rem; }
+    .stack-cat-title {
+      font-size: .72rem; font-weight: 700; color: var(--orange);
+      text-transform: uppercase; letter-spacing: .12em;
+      margin-bottom: 1rem; padding-bottom: .5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .stack-pills { display: flex; flex-wrap: wrap; gap: .6rem; }
+    .stack-pill {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 8px; padding: .55rem 1rem;
+      font-size: .84rem; font-weight: 600;
+      display: flex; align-items: center; gap: .5rem;
+      transition: all .2s;
+    }
+    .stack-pill:hover { border-color: var(--orange-dim); background: var(--bg3); transform: translateY(-1px); }
+    .stack-pill-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+    /* ─── FOOTER ────────────────────────────────────── */
     footer {
       border-top: 1px solid var(--border);
-      text-align: center; padding: 2.5rem 2rem;
-      color: var(--muted); font-size: .85rem;
+      padding: 3rem 2rem; text-align: center;
     }
-    footer a { color: var(--cyan); text-decoration: none; }
+    .footer-logo {
+      display: inline-flex; align-items: center; gap: .6rem;
+      font-weight: 800; font-size: 1.1rem; margin-bottom: .8rem;
+    }
+    .footer-logo-icon {
+      width: 28px; height: 28px; background: var(--orange);
+      border-radius: 7px; display: flex; align-items: center; justify-content: center;
+      font-size: .8rem;
+    }
+    footer p { color: var(--muted); font-size: .85rem; }
+    footer a { color: var(--orange-b); text-decoration: none; }
     footer a:hover { text-decoration: underline; }
 
-    /* ── DIVIDER ─────────────────────────────────────── */
-    .divider { border: none; border-top: 1px solid var(--border); max-width: 1100px; margin: 0 auto; }
+    /* ─── REVEAL ANIMATION ──────────────────────────── */
+    .reveal {
+      opacity: 0; transform: translateY(28px);
+      transition: opacity .6s ease, transform .6s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
 
-    /* ── RESPONSIVE ──────────────────────────────────── */
-    @media (max-width: 600px) {
+    /* ─── RESPONSIVE ────────────────────────────────── */
+    @media (max-width: 900px) {
+      .bento { grid-template-columns: 1fr 1fr; }
+      .b-1,.b-2,.b-3,.b-4,.b-5,.b-6,.b-7,.b-8,.b-9,.b-10,.b-11,.b-12 { grid-column: span 2; }
+      .b-3,.b-4,.b-5,.b-10,.b-11,.b-12 { grid-column: span 1; }
+      .why-layout { grid-template-columns: 1fr; gap: 2rem; }
+      nav { padding: 0 1.5rem; }
       .nav-links { display: none; }
-      .hero-stats { gap: 2rem; }
+    }
+    @media (max-width: 600px) {
+      .bento { grid-template-columns: 1fr; }
+      .b-1,.b-2,.b-3,.b-4,.b-5,.b-6,.b-7,.b-8,.b-9,.b-10,.b-11,.b-12 { grid-column: span 1; }
+      .hero-stats { flex-direction: column; gap: 0; }
+      .hero-stat { border-right: none; border-bottom: 1px solid var(--border); }
+      .hero-stat:last-child { border-bottom: none; }
+      .comparison-header span:nth-child(2),
+      .comparison-row span:nth-child(2) { display: none; }
+      .comparison-header,
+      .comparison-row { grid-template-columns: 1fr 1fr; }
     }
   </style>
 </head>
 <body>
 
-<!-- NAV -->
+<!-- ── NAV ──────────────────────────────────────────── -->
 <nav>
-  <span class="nav-logo">🏠 Homelab</span>
+  <div class="nav-logo">
+    <div class="nav-logo-icon">🏠</div>
+    Homelab
+  </div>
   <div class="nav-links">
-    <a href="#por-que">Por quê?</a>
     <a href="#servicos">Serviços</a>
     <a href="#hardware">Hardware</a>
+    <a href="#por-que">Por quê?</a>
     <a href="#stack">Stack</a>
   </div>
+  <span class="nav-badge">Proxmox VE · 24/7</span>
 </nav>
 
-<!-- HERO -->
-<div class="hero">
-  <div class="hero-badge">🖥️ Self-hosted &amp; Open Source</div>
-  <h1>Tudo na <span>minha própria</span><br/>infraestrutura</h1>
-  <p>
-    Um servidor doméstico que substitui serviços pagos na nuvem por alternativas
-    privadas, rápidas e completamente sob meu controle.
-  </p>
-  <div class="hero-cta">
-    <a href="#servicos" class="btn btn-primary">Ver serviços</a>
-    <a href="#por-que" class="btn btn-ghost">Por que fazer isso?</a>
+<!-- ── HERO ─────────────────────────────────────────── -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-eyebrow">Self-hosted &amp; Open Source</div>
+    <h1>
+      Infraestrutura<br/>
+      <span class="gradient">100% minha.</span>
+    </h1>
+    <p class="hero-sub">
+      Um servidor doméstico que roda mais de 10 serviços, substitui assinaturas
+      pagas e devolve privacidade e controle sobre os próprios dados.
+    </p>
+    <div class="hero-cta">
+      <a href="#servicos" class="btn btn-orange">↓ Ver serviços</a>
+      <a href="#por-que" class="btn btn-ghost">Por que fazer isso?</a>
+    </div>
   </div>
+
   <div class="hero-stats">
-    <div class="stat"><div class="stat-value">10+</div><div class="stat-label">Serviços ativos</div></div>
-    <div class="stat"><div class="stat-value">24 TB</div><div class="stat-label">Armazenamento</div></div>
-    <div class="stat"><div class="stat-value">24/7</div><div class="stat-label">Disponibilidade</div></div>
-    <div class="stat"><div class="stat-value">R$0</div><div class="stat-label">Mensalidade</div></div>
+    <div class="hero-stat">
+      <div class="stat-val" data-target="10" data-suffix="+">0</div>
+      <div class="stat-label">Serviços ativos</div>
+    </div>
+    <div class="hero-stat">
+      <div class="stat-val" data-target="24" data-suffix=" TB">0</div>
+      <div class="stat-label">Armazenamento</div>
+    </div>
+    <div class="hero-stat">
+      <div class="stat-val" data-target="24" data-suffix="/7">0</div>
+      <div class="stat-label">Disponibilidade</div>
+    </div>
+    <div class="hero-stat">
+      <div class="stat-val" data-prefix="R$" data-target="0">0</div>
+      <div class="stat-label">Mensalidade</div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ── SERVIÇOS ─────────────────────────────────────── -->
+<div class="section-wrap" id="servicos">
+  <div class="section-tag">O que roda aqui</div>
+  <h2 class="section-title reveal">Serviços em produção</h2>
+  <p class="section-desc reveal">
+    Cada serviço substitui um produto comercial — rodando localmente,
+    sem mensalidade, sem rastrear seus dados.
+  </p>
+
+  <div class="bento">
+
+    <div class="bento-card featured b-1 reveal">
+      <div class="bento-card-inner">
+        <span class="bento-icon">🎬</span>
+        <div class="bento-title">Jellyfin</div>
+        <div class="bento-desc">Streaming pessoal de filmes, séries e músicas em qualquer tela da casa. Suporte a legendas, múltiplos usuários e transcodificação de hardware. Funciona como um Netflix — só que é seu.</div>
+        <span class="bento-tag">Mídia</span>
+      </div>
+    </div>
+
+    <div class="bento-card b-2 reveal">
+      <div class="bento-card-inner">
+        <span class="bento-icon">📷</span>
+        <div class="bento-title">Immich</div>
+        <div class="bento-desc">Backup automático das fotos do celular com reconhecimento facial por IA. Google Fotos, mas privado.</div>
+        <span class="bento-tag">Fotos</span>
+      </div>
+    </div>
+
+    <div class="bento-card b-3 reveal">
+      <div class="bento-card-inner">
+        <span class="bento-icon">🔑</span>
+        <div class="bento-title">Vaultwarden</div>
+        <div class="bento-desc">Cofre de senhas compatível com Bitwarden. Tudo no meu servidor.</div>
+        <span class="bento-tag">Segurança</span>
+      </div>
+    </div>
+
+    <div class="bento-card b-4 reveal">
+      <div class="bento-card-inner">
+        <span class="bento-icon">🚫</span>
+        <div class="bento-title">AdGuard Home</div>
+        <div class="bento-desc">Bloqueia anúncios e rastreadores em toda a rede, em todos os dispositivos.</div>
+        <span class="bento-tag">Rede</span>
+      </div>
+    </div>
+
+    <div class="bento-card b-5 reveal">
+      <div class="bento-card-inner">
+        <span class="bento-icon">📰</span>
+        <div class="bento-title">FreshRSS</div>
+        <div class="bento-desc">Notícias sem algoritmo. Você escolhe as fontes, sem feed patrocinado.</div>
+        <span class="bento-tag">Leitura</span>
+      </div>
+    </div>
+
+    <div class="bento-card featured b-6 reveal">
+      <div class="bento-card-inner">
+        <span class="bento-icon">🏡</span>
+        <div class="bento-title">Home Assistant</div>
+        <div class="bento-desc">Central de automação residencial. Controla ar-condicionado, luzes e dispositivos inteligentes com automações locais — sem depender de servidores de fabricante.</div>
+        <span class="bento-tag">Automação</span>
+      </div>
+    </div>
+
+    <div class="bento-card featured b-7 reveal">
+      <div class="bento-card-inner">
+        <span class="bento-icon">📄</span>
+        <div class="bento-title">Paperless-NGX</div>
+        <div class="bento-desc">Digitaliza e organiza documentos com OCR em português e inglês. Busca instantânea em qualquer boleto, contrato ou nota fiscal. Integrado com IA para categorização automática via n8n.</div>
+        <span class="bento-tag">Documentos</span>
+      </div>
+    </div>
+
+    <div class="bento-card b-2 reveal">
+      <div class="bento-card-inner">
+        <span class="bento-icon">⚡</span>
+        <div class="bento-title">n8n</div>
+        <div class="bento-desc">Automação de tarefas entre serviços. Conecta apps e dispara ações automaticamente.</div>
+        <span class="bento-tag">Automação</span>
+      </div>
+    </div>
+
+    <div class="bento-card b-8 reveal">
+      <div class="bento-card-inner">
+        <span class="bento-icon">📊</span>
+        <div class="bento-title">Grafana + InfluxDB</div>
+        <div class="bento-desc">Dashboards em tempo real com métricas de CPU, rede, temperatura e status do no-break. Tudo monitorado, nada passa despercebido.</div>
+        <span class="bento-tag">Monitoramento</span>
+      </div>
+    </div>
+
+    <div class="bento-card b-9 reveal">
+      <div class="bento-card-inner">
+        <span class="bento-icon">🔋</span>
+        <div class="bento-title">Monitor de No-break</div>
+        <div class="bento-desc">Daemon customizado que lê a bateria do UPS a cada 6 segundos e desliga os serviços com segurança em caso de queda de energia.</div>
+        <span class="bento-tag">Infraestrutura</span>
+      </div>
+    </div>
+
+    <div class="bento-card b-10 reveal">
+      <div class="bento-card-inner">
+        <span class="bento-icon">🗂️</span>
+        <div class="bento-title">Homepage</div>
+        <div class="bento-desc">Painel de controle com status de todos os serviços em tempo real.</div>
+        <span class="bento-tag">Dashboard</span>
+      </div>
+    </div>
+
+    <div class="bento-card b-11 reveal">
+      <div class="bento-card-inner">
+        <span class="bento-icon">🌐</span>
+        <div class="bento-title">Tailscale</div>
+        <div class="bento-desc">VPN mesh para acessar todos os serviços de qualquer lugar com segurança.</div>
+        <span class="bento-tag">Acesso Remoto</span>
+      </div>
+    </div>
+
+    <div class="bento-card b-12 reveal">
+      <div class="bento-card-inner">
+        <span class="bento-icon">💸</span>
+        <div class="bento-title">Wealthfolio</div>
+        <div class="bento-desc">Acompanhamento de portfólio financeiro. Seus dados financeiros ficam só aqui.</div>
+        <span class="bento-tag">Finanças</span>
+      </div>
+    </div>
+
   </div>
 </div>
 
 <hr class="divider" />
 
-<!-- POR QUE -->
-<section id="por-que">
-  <div class="section-label">Motivação</div>
-  <h2 class="section-title">Por que montar um homelab?</h2>
-  <p class="section-desc">
-    A maioria dos serviços que usamos no dia a dia cobra mensalidade, coleta dados
-    e pode simplesmente sumir. O homelab resolve isso de uma vez.
+<!-- ── HARDWARE ──────────────────────────────────────── -->
+<div class="section-wrap" id="hardware">
+  <div class="section-tag">Infraestrutura física</div>
+  <h2 class="section-title reveal">O hardware por trás de tudo</h2>
+  <p class="section-desc reveal">
+    Um mini PC do tamanho de um livro consome menos energia que uma lâmpada
+    e roda tudo isso 24 horas por dia, 7 dias por semana.
   </p>
-  <div class="why-grid">
-    <div class="why-card">
-      <div class="why-icon">🔒</div>
-      <h3>Privacidade real</h3>
-      <p>Seus arquivos, fotos e senhas ficam no seu servidor, na sua casa. Nenhuma empresa tem acesso.</p>
-    </div>
-    <div class="why-card">
-      <div class="why-icon">💸</div>
-      <h3>Fim das mensalidades</h3>
-      <p>Netflix de filmes pessoais, Google Fotos próprio, cofre de senhas — sem pagar todo mês.</p>
-    </div>
-    <div class="why-card">
-      <div class="why-icon">⚡</div>
-      <h3>Velocidade na rede local</h3>
-      <p>Filmes em 4K sem buffering, backups que levam segundos. Tudo trafega na sua LAN.</p>
-    </div>
-    <div class="why-card">
-      <div class="why-icon">🧠</div>
-      <h3>Aprendizado prático</h3>
-      <p>Redes, Linux, containers, automação — você aprende fazendo, com seu próprio ambiente.</p>
-    </div>
-    <div class="why-card">
-      <div class="why-icon">🏠</div>
-      <h3>Casa inteligente sem terceiros</h3>
-      <p>Automações, luzes e dispositivos conectados sem depender do servidor de nenhuma fabricante.</p>
-    </div>
-    <div class="why-card">
-      <div class="why-icon">🛡️</div>
-      <h3>Sem anúncios na rede</h3>
-      <p>Um único bloqueador de anúncios que funciona em todos os dispositivos da casa, sem instalar nada.</p>
-    </div>
-  </div>
 
-  <div class="quote-block">
-    <p>"Se o produto é de graça, o produto é você. Prefiro pagar uma vez em hardware e ter o controle de verdade."</p>
-  </div>
-</section>
-
-<hr class="divider" />
-
-<!-- SERVIÇOS -->
-<section id="servicos">
-  <div class="section-label">O que roda aqui</div>
-  <h2 class="section-title">Serviços ativos</h2>
-  <p class="section-desc">
-    Cada serviço substitui um app comercial — com a vantagem de rodar localmente,
-    sem mensalidade e sem coletar seus dados.
-  </p>
-  <div class="services-grid">
-
-    <div class="service-card">
-      <div class="service-emoji">🎬</div>
-      <div class="service-info">
-        <h3>Jellyfin</h3>
-        <p>Streaming de filmes, séries e músicas para qualquer tela da casa. Como um Netflix pessoal.</p>
-        <span class="service-tag">Mídia</span>
-      </div>
-    </div>
-
-    <div class="service-card">
-      <div class="service-emoji">📷</div>
-      <div class="service-info">
-        <h3>Immich</h3>
-        <p>Backup automático de fotos do celular com reconhecimento facial e busca por IA. Google Fotos, mas meu.</p>
-        <span class="service-tag">Fotos</span>
-      </div>
-    </div>
-
-    <div class="service-card">
-      <div class="service-emoji">🔑</div>
-      <div class="service-info">
-        <h3>Vaultwarden</h3>
-        <p>Cofre de senhas compatível com o Bitwarden. Todas as senhas guardadas no meu servidor.</p>
-        <span class="service-tag">Segurança</span>
-      </div>
-    </div>
-
-    <div class="service-card">
-      <div class="service-emoji">🏡</div>
-      <div class="service-info">
-        <h3>Home Assistant</h3>
-        <p>Central de automação residencial. Controla ar-condicionado, luzes e dispositivos inteligentes.</p>
-        <span class="service-tag">Automação</span>
-      </div>
-    </div>
-
-    <div class="service-card">
-      <div class="service-emoji">🚫</div>
-      <div class="service-info">
-        <h3>AdGuard Home</h3>
-        <p>Bloqueia anúncios e rastreadores em toda a rede doméstica, em todos os dispositivos ao mesmo tempo.</p>
-        <span class="service-tag">Rede</span>
-      </div>
-    </div>
-
-    <div class="service-card">
-      <div class="service-emoji">📄</div>
-      <div class="service-info">
-        <h3>Paperless-NGX</h3>
-        <p>Digitaliza e organiza documentos com OCR. Busca em qualquer boleto, contrato ou nota fiscal.</p>
-        <span class="service-tag">Documentos</span>
-      </div>
-    </div>
-
-    <div class="service-card">
-      <div class="service-emoji">⚡</div>
-      <div class="service-info">
-        <h3>n8n</h3>
-        <p>Automação de tarefas entre serviços. Conecta apps, dispara alertas e processa dados automaticamente.</p>
-        <span class="service-tag">Automação</span>
-      </div>
-    </div>
-
-    <div class="service-card">
-      <div class="service-emoji">📊</div>
-      <div class="service-info">
-        <h3>Grafana + InfluxDB</h3>
-        <p>Dashboards em tempo real com métricas do servidor, rede, temperatura e status do no-break.</p>
-        <span class="service-tag">Monitoramento</span>
-      </div>
-    </div>
-
-    <div class="service-card">
-      <div class="service-emoji">📰</div>
-      <div class="service-info">
-        <h3>FreshRSS</h3>
-        <p>Leitor de notícias sem algoritmo. Você escolhe o que ler, sem feed patrocinado ou bolha de filtro.</p>
-        <span class="service-tag">Notícias</span>
-      </div>
-    </div>
-
-    <div class="service-card">
-      <div class="service-emoji">🗂️</div>
-      <div class="service-info">
-        <h3>Homepage</h3>
-        <p>Painel de controle centralizado com status de todos os serviços em tempo real.</p>
-        <span class="service-tag">Dashboard</span>
-      </div>
-    </div>
-
-    <div class="service-card">
-      <div class="service-emoji">🌐</div>
-      <div class="service-info">
-        <h3>Tailscale</h3>
-        <p>VPN mesh que permite acessar todos os serviços de qualquer lugar do mundo com segurança.</p>
-        <span class="service-tag">Acesso Remoto</span>
-      </div>
-    </div>
-
-    <div class="service-card">
-      <div class="service-emoji">🔋</div>
-      <div class="service-info">
-        <h3>Monitor de No-break</h3>
-        <p>Daemon customizado que acompanha a bateria do UPS em tempo real e protege os dados em caso de queda de energia.</p>
-        <span class="service-tag">Infraestrutura</span>
-      </div>
-    </div>
-
-  </div>
-</section>
-
-<hr class="divider" />
-
-<!-- HARDWARE -->
-<section id="hardware">
-  <div class="section-label">Infraestrutura física</div>
-  <h2 class="section-title">O hardware por trás de tudo</h2>
-  <p class="section-desc">
-    Um mini PC discreto consome menos energia que uma lâmpada e roda tudo isso 24 horas por dia.
-  </p>
   <div class="hw-grid">
-    <div class="hw-card">
-      <div class="hw-icon">🖥️</div>
-      <h3>Servidor Principal</h3>
-      <div class="hw-spec"><span>Modelo</span><span>Beelink Mini S13</span></div>
-      <div class="hw-spec"><span>CPU</span><span>Intel N150</span></div>
-      <div class="hw-spec"><span>RAM</span><span>16 GB LPDDR4</span></div>
-      <div class="hw-spec"><span>Armazenamento</span><span>512 GB NVMe</span></div>
-      <div class="hw-spec"><span>Sistema</span><span>Proxmox VE</span></div>
+    <div class="hw-card reveal">
+      <div class="hw-header">
+        <div class="hw-header-icon">🖥️</div>
+        <div>
+          <h3>Servidor Principal</h3>
+          <p>Hypervisor Proxmox VE</p>
+        </div>
+      </div>
+      <div class="hw-specs">
+        <div class="hw-spec-row"><span>Modelo</span><span>Beelink Mini S13</span></div>
+        <div class="hw-spec-row"><span>CPU</span><span>Intel N150</span></div>
+        <div class="hw-spec-row"><span>RAM</span><span>16 GB LPDDR4</span></div>
+        <div class="hw-spec-row"><span>SSD</span><span>512 GB NVMe</span></div>
+        <div class="hw-spec-row"><span>Sistema</span><span>Proxmox VE 9</span></div>
+        <div class="hw-spec-row"><span>VMs / LXCs</span><span>1 VM + 7 LXCs</span></div>
+      </div>
     </div>
-    <div class="hw-card">
-      <div class="hw-icon">💾</div>
-      <h3>Armazenamento de Dados</h3>
-      <div class="hw-spec"><span>Modelo</span><span>Seagate Exos X24</span></div>
-      <div class="hw-spec"><span>Capacidade</span><span>24 TB</span></div>
-      <div class="hw-spec"><span>Classe</span><span>Enterprise 24/7</span></div>
-      <div class="hw-spec"><span>Rotação</span><span>7200 RPM</span></div>
-      <div class="hw-spec"><span>Case</span><span>ORICO USB 3.0</span></div>
+
+    <div class="hw-card reveal">
+      <div class="hw-header">
+        <div class="hw-header-icon">💾</div>
+        <div>
+          <h3>Armazenamento</h3>
+          <p>Dados e mídia</p>
+        </div>
+      </div>
+      <div class="hw-specs">
+        <div class="hw-spec-row"><span>Modelo</span><span>Seagate Exos X24</span></div>
+        <div class="hw-spec-row"><span>Capacidade</span><span>24 TB</span></div>
+        <div class="hw-spec-row"><span>Classe</span><span>Enterprise 24/7</span></div>
+        <div class="hw-spec-row"><span>Rotação</span><span>7200 RPM</span></div>
+        <div class="hw-spec-row"><span>Interface</span><span>SATA 6 Gbps</span></div>
+        <div class="hw-spec-row"><span>Case</span><span>ORICO USB 3.0</span></div>
+      </div>
     </div>
-    <div class="hw-card">
-      <div class="hw-icon">🔋</div>
-      <h3>No-break (UPS)</h3>
-      <div class="hw-spec"><span>Modelo</span><span>Ragtech Easy Pro</span></div>
-      <div class="hw-spec"><span>Capacidade</span><span>1200 VA</span></div>
-      <div class="hw-spec"><span>Tipo</span><span>Senoidal Puro</span></div>
-      <div class="hw-spec"><span>Monitoramento</span><span>Tempo real</span></div>
-      <div class="hw-spec"><span>Proteção</span><span>Shutdown automático</span></div>
+
+    <div class="hw-card reveal">
+      <div class="hw-header">
+        <div class="hw-header-icon">🔋</div>
+        <div>
+          <h3>No-break (UPS)</h3>
+          <p>Proteção contra queda de energia</p>
+        </div>
+      </div>
+      <div class="hw-specs">
+        <div class="hw-spec-row"><span>Modelo</span><span>Ragtech Easy Pro</span></div>
+        <div class="hw-spec-row"><span>Capacidade</span><span>1200 VA</span></div>
+        <div class="hw-spec-row"><span>Tipo</span><span>Senoidal Puro</span></div>
+        <div class="hw-spec-row"><span>Monitoramento</span><span>Tempo real (6s)</span></div>
+        <div class="hw-spec-row"><span>Proteção L1</span><span>Desliga HD + LXCs</span></div>
+        <div class="hw-spec-row"><span>Proteção L2</span><span>Desliga Proxmox</span></div>
+      </div>
     </div>
-    <div class="hw-card">
-      <div class="hw-icon">🌐</div>
-      <h3>Rede</h3>
-      <div class="hw-spec"><span>Roteador</span><span>TP-Link AX1500</span></div>
-      <div class="hw-spec"><span>Padrão</span><span>Wi-Fi 6</span></div>
-      <div class="hw-spec"><span>ISP</span><span>Fibra GPON</span></div>
-      <div class="hw-spec"><span>DNS</span><span>AdGuard Home</span></div>
-      <div class="hw-spec"><span>DNS Backup</span><span>Raspberry Pi</span></div>
+
+    <div class="hw-card reveal">
+      <div class="hw-header">
+        <div class="hw-header-icon">🌐</div>
+        <div>
+          <h3>Rede</h3>
+          <p>Conectividade e DNS</p>
+        </div>
+      </div>
+      <div class="hw-specs">
+        <div class="hw-spec-row"><span>Roteador</span><span>TP-Link AX1500</span></div>
+        <div class="hw-spec-row"><span>Padrão</span><span>Wi-Fi 6 (802.11ax)</span></div>
+        <div class="hw-spec-row"><span>ISP</span><span>Fibra GPON</span></div>
+        <div class="hw-spec-row"><span>DNS Primário</span><span>AdGuard Home</span></div>
+        <div class="hw-spec-row"><span>DNS Backup</span><span>Raspberry Pi</span></div>
+        <div class="hw-spec-row"><span>VPN Remota</span><span>Tailscale Mesh</span></div>
+      </div>
     </div>
   </div>
-</section>
+</div>
 
 <hr class="divider" />
 
-<!-- STACK -->
-<section id="stack">
-  <div class="section-label">Tecnologias</div>
-  <h2 class="section-title">Stack tecnológica</h2>
-  <p class="section-desc">Tudo open source, tudo sob controle.</p>
-  <div class="stack-grid">
-    <span class="stack-pill">🟠 Proxmox VE</span>
-    <span class="stack-pill">🐳 Docker</span>
-    <span class="stack-pill">🐧 Debian Linux</span>
-    <span class="stack-pill">🏠 Home Assistant</span>
-    <span class="stack-pill">📊 Grafana</span>
-    <span class="stack-pill">📈 InfluxDB</span>
-    <span class="stack-pill">🔄 Telegraf</span>
-    <span class="stack-pill">🔒 Tailscale</span>
-    <span class="stack-pill">🛡️ AdGuard Home</span>
-    <span class="stack-pill">🔑 Vaultwarden</span>
-    <span class="stack-pill">📷 Immich</span>
-    <span class="stack-pill">🎬 Jellyfin</span>
-    <span class="stack-pill">⚡ n8n</span>
-    <span class="stack-pill">📰 FreshRSS</span>
-    <span class="stack-pill">📄 Paperless-NGX</span>
-    <span class="stack-pill">🐍 Python</span>
-    <span class="stack-pill">🔧 Bash</span>
-  </div>
-</section>
+<!-- ── POR QUE ───────────────────────────────────────── -->
+<div class="section-wrap" id="por-que">
+  <div class="section-tag">Motivação</div>
+  <h2 class="section-title reveal">Por que montar um homelab?</h2>
 
-<!-- FOOTER -->
+  <div class="why-layout">
+    <div class="reveal">
+      <div class="why-heading">A nuvem é conveniente.<br/><span>Mas tem um custo escondido.</span></div>
+      <p class="why-intro">
+        Serviços como Google Fotos, Dropbox, Netflix e LastPass custam caro ao longo dos anos —
+        e mais caro ainda em privacidade. Com um servidor em casa, você paga o hardware uma vez
+        e tem controle total para sempre.
+      </p>
+
+      <div class="comparison">
+        <div class="comparison-header">
+          <span>Serviço</span>
+          <span>Nuvem (por ano)</span>
+          <span>Homelab</span>
+        </div>
+        <div class="comparison-row">
+          <span class="row-label">Armazenamento de fotos</span>
+          <span class="bad">~R$ 360/ano</span>
+          <span class="ok">R$ 0</span>
+        </div>
+        <div class="comparison-row">
+          <span class="row-label">Streaming de filmes</span>
+          <span class="bad">~R$ 960/ano</span>
+          <span class="ok">R$ 0</span>
+        </div>
+        <div class="comparison-row">
+          <span class="row-label">Cofre de senhas</span>
+          <span class="bad">~R$ 180/ano</span>
+          <span class="ok">R$ 0</span>
+        </div>
+        <div class="comparison-row">
+          <span class="row-label">Privacidade dos dados</span>
+          <span class="bad">Não garantida</span>
+          <span class="ok">Total</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="why-list reveal">
+      <div class="why-item">
+        <div class="why-item-icon">🔒</div>
+        <div>
+          <h4>Seus dados são seus</h4>
+          <p>Fotos, senhas e documentos ficam no seu servidor. Nenhuma empresa acessa, analisa ou vende seus dados.</p>
+        </div>
+      </div>
+      <div class="why-item">
+        <div class="why-item-icon">⚡</div>
+        <div>
+          <h4>Velocidade local</h4>
+          <p>Na rede local, filmes em 4K sem buffering e backups de fotos instantâneos. Sem depender da velocidade da internet.</p>
+        </div>
+      </div>
+      <div class="why-item">
+        <div class="why-item-icon">🏠</div>
+        <div>
+          <h4>Casa verdadeiramente inteligente</h4>
+          <p>Automações que funcionam mesmo sem internet, sem depender do servidor de nenhuma fabricante.</p>
+        </div>
+      </div>
+      <div class="why-item">
+        <div class="why-item-icon">🧠</div>
+        <div>
+          <h4>Aprendizado real</h4>
+          <p>Redes, Linux, Docker, automação e segurança — você aprende administrando sua própria infraestrutura.</p>
+        </div>
+      </div>
+      <div class="why-item">
+        <div class="why-item-icon">🔧</div>
+        <div>
+          <h4>Controle total</h4>
+          <p>Sem mudanças de política, sem aumentos de preço, sem serviço sendo descontinuado. Tudo funciona nas suas regras.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider" />
+
+<!-- ── STACK ─────────────────────────────────────────── -->
+<div class="section-wrap" id="stack">
+  <div class="section-tag">Tecnologias</div>
+  <h2 class="section-title reveal">Stack open source</h2>
+  <p class="section-desc reveal">100% software livre. Sem lock-in, sem licenças, sem surpresas.</p>
+
+  <div class="stack-categories reveal">
+    <div>
+      <div class="stack-cat-title">Virtualização &amp; Containers</div>
+      <div class="stack-pills">
+        <span class="stack-pill"><span class="stack-pill-dot" style="background:#E57000"></span>Proxmox VE</span>
+        <span class="stack-pill"><span class="stack-pill-dot" style="background:#2496ED"></span>Docker</span>
+        <span class="stack-pill"><span class="stack-pill-dot" style="background:#2496ED"></span>Docker Compose</span>
+        <span class="stack-pill"><span class="stack-pill-dot" style="background:#A80030"></span>Debian Linux</span>
+      </div>
+    </div>
+    <div>
+      <div class="stack-cat-title">Monitoramento</div>
+      <div class="stack-pills">
+        <span class="stack-pill"><span class="stack-pill-dot" style="background:#F46800"></span>Grafana</span>
+        <span class="stack-pill"><span class="stack-pill-dot" style="background:#22ADF6"></span>InfluxDB</span>
+        <span class="stack-pill"><span class="stack-pill-dot" style="background:#D71F85"></span>Telegraf</span>
+        <span class="stack-pill"><span class="stack-pill-dot" style="background:#4CAF50"></span>Prometheus-ready</span>
+      </div>
+    </div>
+    <div>
+      <div class="stack-cat-title">Serviços &amp; Aplicações</div>
+      <div class="stack-pills">
+        <span class="stack-pill"><span class="stack-pill-dot" style="background:#00A4DC"></span>Jellyfin</span>
+        <span class="stack-pill"><span class="stack-pill-dot" style="background:#4CAF50"></span>Immich</span>
+        <span class="stack-pill"><span class="stack-pill-dot" style="background:#175DDC"></span>Vaultwarden</span>
+        <span class="stack-pill"><span class="stack-pill-dot" style="background:#03A9F4"></span>Home Assistant</span>
+        <span class="stack-pill"><span class="stack-pill-dot" style="background:#17A589"></span>Paperless-NGX</span>
+        <span class="stack-pill"><span class="stack-pill-dot" style="background:#EA4B71"></span>n8n</span>
+        <span class="stack-pill"><span class="stack-pill-dot" style="background:#2CADAD"></span>FreshRSS</span>
+        <span class="stack-pill"><span class="stack-pill-dot" style="background:#FF6B00"></span>AdGuard Home</span>
+      </div>
+    </div>
+    <div>
+      <div class="stack-cat-title">Rede &amp; Segurança</div>
+      <div class="stack-pills">
+        <span class="stack-pill"><span class="stack-pill-dot" style="background:#4F9EE8"></span>Tailscale</span>
+        <span class="stack-pill"><span class="stack-pill-dot" style="background:#EE4400"></span>OpenVPN / NordVPN</span>
+        <span class="stack-pill"><span class="stack-pill-dot" style="background:#666"></span>AdGuard Sync</span>
+      </div>
+    </div>
+    <div>
+      <div class="stack-cat-title">Automação &amp; Scripts</div>
+      <div class="stack-pills">
+        <span class="stack-pill"><span class="stack-pill-dot" style="background:#3572A5"></span>Python 3</span>
+        <span class="stack-pill"><span class="stack-pill-dot" style="background:#89E051"></span>Bash</span>
+        <span class="stack-pill"><span class="stack-pill-dot" style="background:#F7DF1E"></span>Node.js</span>
+        <span class="stack-pill"><span class="stack-pill-dot" style="background:#EA4B71"></span>n8n Workflows</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── FOOTER ────────────────────────────────────────── -->
 <footer>
-  <p>Feito com 🖤 por <a href="https://github.com/mfrafael" target="_blank">mfrafael</a> &nbsp;·&nbsp;
-  Documentação completa no <a href="https://github.com/mfrafael/homelab" target="_blank">GitHub</a></p>
+  <div class="footer-logo">
+    <div class="footer-logo-icon">🏠</div>
+    Homelab
+  </div>
+  <p>
+    Feito com 🖤 por <a href="https://github.com/mfrafael" target="_blank">mfrafael</a>
+    &nbsp;·&nbsp;
+    Documentação completa no <a href="https://github.com/mfrafael/homelab" target="_blank">GitHub</a>
+  </p>
 </footer>
 
+<script>
+  // ── Counter animation ───────────────────────────────
+  function animateCounter(el) {
+    const target   = parseInt(el.dataset.target, 10);
+    const suffix   = el.dataset.suffix || '';
+    const prefix   = el.dataset.prefix || '';
+    const duration = 1400;
+    const start    = performance.now();
+
+    function update(now) {
+      const elapsed  = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      const ease     = 1 - Math.pow(1 - progress, 3);
+      const current  = Math.round(ease * target);
+      el.textContent = prefix + current + suffix;
+      if (progress < 1) requestAnimationFrame(update);
+    }
+    requestAnimationFrame(update);
+  }
+
+  const counters = document.querySelectorAll('.stat-val[data-target]');
+  let countersStarted = false;
+  const statsEl = document.querySelector('.hero-stats');
+
+  const counterObserver = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting && !countersStarted) {
+      countersStarted = true;
+      counters.forEach(animateCounter);
+    }
+  }, { threshold: .3 });
+
+  if (statsEl) counterObserver.observe(statsEl);
+
+  // ── Scroll reveal ───────────────────────────────────
+  const revealObserver = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: .08, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('.reveal').forEach((el, i) => {
+    el.style.transitionDelay = (i % 4) * 80 + 'ms';
+    revealObserver.observe(el);
+  });
+</script>
 </body>
 </html>
