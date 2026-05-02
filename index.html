@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Homelab — mfrafael</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0d1117;
+      --bg2:       #161b22;
+      --bg3:       #21262d;
+      --border:    #30363d;
+      --cyan:      #22d3ee;
+      --cyan-dim:  #0e7490;
+      --text:      #e6edf3;
+      --muted:     #8b949e;
+      --radius:    14px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* ── NAV ─────────────────────────────────────────── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(13,17,23,.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 60px;
+    }
+    .nav-logo { font-weight: 700; font-size: 1.05rem; color: var(--cyan); letter-spacing: -.3px; }
+    .nav-links { display: flex; gap: 1.8rem; }
+    .nav-links a {
+      color: var(--muted); text-decoration: none; font-size: .9rem; font-weight: 500;
+      transition: color .2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+
+    /* ── HERO ────────────────────────────────────────── */
+    .hero {
+      min-height: 92vh;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center;
+      padding: 4rem 2rem;
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(34,211,238,.07) 0%, transparent 70%);
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: .5rem;
+      background: rgba(34,211,238,.1); border: 1px solid rgba(34,211,238,.25);
+      color: var(--cyan); border-radius: 999px;
+      padding: .35rem 1rem; font-size: .8rem; font-weight: 600;
+      letter-spacing: .04em; text-transform: uppercase; margin-bottom: 1.8rem;
+    }
+    .hero h1 {
+      font-size: clamp(2.4rem, 6vw, 4rem);
+      font-weight: 800; letter-spacing: -.04em; line-height: 1.1;
+      margin-bottom: 1.2rem;
+    }
+    .hero h1 span { color: var(--cyan); }
+    .hero p {
+      font-size: clamp(1rem, 2vw, 1.2rem);
+      color: var(--muted); max-width: 580px; margin: 0 auto 2.5rem;
+    }
+    .hero-cta {
+      display: inline-flex; gap: 1rem; flex-wrap: wrap; justify-content: center;
+    }
+    .btn {
+      padding: .75rem 1.6rem; border-radius: 8px;
+      font-size: .95rem; font-weight: 600; text-decoration: none;
+      transition: all .2s; cursor: pointer; border: none;
+    }
+    .btn-primary {
+      background: var(--cyan); color: var(--bg);
+    }
+    .btn-primary:hover { background: #67e8f9; transform: translateY(-1px); }
+    .btn-ghost {
+      background: transparent; color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { background: var(--bg3); border-color: var(--muted); }
+
+    .hero-stats {
+      display: flex; gap: 3rem; margin-top: 4rem; flex-wrap: wrap; justify-content: center;
+    }
+    .stat { text-align: center; }
+    .stat-value { font-size: 2rem; font-weight: 800; color: var(--cyan); }
+    .stat-label { font-size: .8rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+
+    /* ── SEÇÕES ──────────────────────────────────────── */
+    section { padding: 5rem 2rem; max-width: 1100px; margin: 0 auto; }
+    .section-label {
+      font-size: .75rem; font-weight: 700; color: var(--cyan);
+      text-transform: uppercase; letter-spacing: .1em; margin-bottom: .6rem;
+    }
+    .section-title {
+      font-size: clamp(1.6rem, 3.5vw, 2.2rem);
+      font-weight: 800; letter-spacing: -.03em; margin-bottom: .8rem;
+    }
+    .section-desc { color: var(--muted); max-width: 560px; font-size: 1rem; margin-bottom: 3rem; }
+
+    /* ── WHY ─────────────────────────────────────────── */
+    .why-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.2rem;
+    }
+    .why-card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.6rem;
+      transition: border-color .2s, transform .2s;
+    }
+    .why-card:hover { border-color: var(--cyan-dim); transform: translateY(-2px); }
+    .why-icon { font-size: 2rem; margin-bottom: .8rem; }
+    .why-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: .4rem; }
+    .why-card p { font-size: .88rem; color: var(--muted); }
+
+    /* ── SERVIÇOS ────────────────────────────────────── */
+    .services-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem;
+    }
+    .service-card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.4rem 1.6rem;
+      display: flex; gap: 1.1rem; align-items: flex-start;
+      transition: border-color .2s, transform .2s;
+    }
+    .service-card:hover { border-color: var(--cyan-dim); transform: translateY(-2px); }
+    .service-emoji { font-size: 2rem; flex-shrink: 0; margin-top: .1rem; }
+    .service-info h3 { font-size: .95rem; font-weight: 700; margin-bottom: .25rem; }
+    .service-info p { font-size: .83rem; color: var(--muted); line-height: 1.5; }
+    .service-tag {
+      display: inline-block; margin-top: .5rem;
+      background: rgba(34,211,238,.1); color: var(--cyan);
+      border-radius: 4px; padding: .15rem .55rem;
+      font-size: .7rem; font-weight: 600; letter-spacing: .04em;
+    }
+
+    /* ── HARDWARE ────────────────────────────────────── */
+    .hw-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.2rem;
+    }
+    .hw-card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.6rem;
+    }
+    .hw-icon { font-size: 2.2rem; margin-bottom: 1rem; }
+    .hw-card h3 { font-size: .95rem; font-weight: 700; margin-bottom: .6rem; }
+    .hw-spec { display: flex; justify-content: space-between; padding: .35rem 0; border-bottom: 1px solid var(--border); font-size: .83rem; }
+    .hw-spec:last-child { border-bottom: none; }
+    .hw-spec span:first-child { color: var(--muted); }
+    .hw-spec span:last-child { font-weight: 600; }
+
+    /* ── STACK ───────────────────────────────────────── */
+    .stack-grid {
+      display: flex; flex-wrap: wrap; gap: .8rem;
+    }
+    .stack-pill {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 8px; padding: .55rem 1.1rem;
+      font-size: .85rem; font-weight: 600;
+      display: flex; align-items: center; gap: .5rem;
+      transition: border-color .2s;
+    }
+    .stack-pill:hover { border-color: var(--cyan-dim); }
+
+    /* ── QUOTE ───────────────────────────────────────── */
+    .quote-block {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-left: 3px solid var(--cyan);
+      border-radius: var(--radius); padding: 2rem 2.4rem;
+      margin-top: 1.5rem;
+    }
+    .quote-block p { font-size: 1.1rem; font-style: italic; color: var(--muted); line-height: 1.7; }
+
+    /* ── FOOTER ──────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      text-align: center; padding: 2.5rem 2rem;
+      color: var(--muted); font-size: .85rem;
+    }
+    footer a { color: var(--cyan); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    /* ── DIVIDER ─────────────────────────────────────── */
+    .divider { border: none; border-top: 1px solid var(--border); max-width: 1100px; margin: 0 auto; }
+
+    /* ── RESPONSIVE ──────────────────────────────────── */
+    @media (max-width: 600px) {
+      .nav-links { display: none; }
+      .hero-stats { gap: 2rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <span class="nav-logo">🏠 Homelab</span>
+  <div class="nav-links">
+    <a href="#por-que">Por quê?</a>
+    <a href="#servicos">Serviços</a>
+    <a href="#hardware">Hardware</a>
+    <a href="#stack">Stack</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">🖥️ Self-hosted &amp; Open Source</div>
+  <h1>Tudo na <span>minha própria</span><br/>infraestrutura</h1>
+  <p>
+    Um servidor doméstico que substitui serviços pagos na nuvem por alternativas
+    privadas, rápidas e completamente sob meu controle.
+  </p>
+  <div class="hero-cta">
+    <a href="#servicos" class="btn btn-primary">Ver serviços</a>
+    <a href="#por-que" class="btn btn-ghost">Por que fazer isso?</a>
+  </div>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-value">10+</div><div class="stat-label">Serviços ativos</div></div>
+    <div class="stat"><div class="stat-value">24 TB</div><div class="stat-label">Armazenamento</div></div>
+    <div class="stat"><div class="stat-value">24/7</div><div class="stat-label">Disponibilidade</div></div>
+    <div class="stat"><div class="stat-value">R$0</div><div class="stat-label">Mensalidade</div></div>
+  </div>
+</div>
+
+<hr class="divider" />
+
+<!-- POR QUE -->
+<section id="por-que">
+  <div class="section-label">Motivação</div>
+  <h2 class="section-title">Por que montar um homelab?</h2>
+  <p class="section-desc">
+    A maioria dos serviços que usamos no dia a dia cobra mensalidade, coleta dados
+    e pode simplesmente sumir. O homelab resolve isso de uma vez.
+  </p>
+  <div class="why-grid">
+    <div class="why-card">
+      <div class="why-icon">🔒</div>
+      <h3>Privacidade real</h3>
+      <p>Seus arquivos, fotos e senhas ficam no seu servidor, na sua casa. Nenhuma empresa tem acesso.</p>
+    </div>
+    <div class="why-card">
+      <div class="why-icon">💸</div>
+      <h3>Fim das mensalidades</h3>
+      <p>Netflix de filmes pessoais, Google Fotos próprio, cofre de senhas — sem pagar todo mês.</p>
+    </div>
+    <div class="why-card">
+      <div class="why-icon">⚡</div>
+      <h3>Velocidade na rede local</h3>
+      <p>Filmes em 4K sem buffering, backups que levam segundos. Tudo trafega na sua LAN.</p>
+    </div>
+    <div class="why-card">
+      <div class="why-icon">🧠</div>
+      <h3>Aprendizado prático</h3>
+      <p>Redes, Linux, containers, automação — você aprende fazendo, com seu próprio ambiente.</p>
+    </div>
+    <div class="why-card">
+      <div class="why-icon">🏠</div>
+      <h3>Casa inteligente sem terceiros</h3>
+      <p>Automações, luzes e dispositivos conectados sem depender do servidor de nenhuma fabricante.</p>
+    </div>
+    <div class="why-card">
+      <div class="why-icon">🛡️</div>
+      <h3>Sem anúncios na rede</h3>
+      <p>Um único bloqueador de anúncios que funciona em todos os dispositivos da casa, sem instalar nada.</p>
+    </div>
+  </div>
+
+  <div class="quote-block">
+    <p>"Se o produto é de graça, o produto é você. Prefiro pagar uma vez em hardware e ter o controle de verdade."</p>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- SERVIÇOS -->
+<section id="servicos">
+  <div class="section-label">O que roda aqui</div>
+  <h2 class="section-title">Serviços ativos</h2>
+  <p class="section-desc">
+    Cada serviço substitui um app comercial — com a vantagem de rodar localmente,
+    sem mensalidade e sem coletar seus dados.
+  </p>
+  <div class="services-grid">
+
+    <div class="service-card">
+      <div class="service-emoji">🎬</div>
+      <div class="service-info">
+        <h3>Jellyfin</h3>
+        <p>Streaming de filmes, séries e músicas para qualquer tela da casa. Como um Netflix pessoal.</p>
+        <span class="service-tag">Mídia</span>
+      </div>
+    </div>
+
+    <div class="service-card">
+      <div class="service-emoji">📷</div>
+      <div class="service-info">
+        <h3>Immich</h3>
+        <p>Backup automático de fotos do celular com reconhecimento facial e busca por IA. Google Fotos, mas meu.</p>
+        <span class="service-tag">Fotos</span>
+      </div>
+    </div>
+
+    <div class="service-card">
+      <div class="service-emoji">🔑</div>
+      <div class="service-info">
+        <h3>Vaultwarden</h3>
+        <p>Cofre de senhas compatível com o Bitwarden. Todas as senhas guardadas no meu servidor.</p>
+        <span class="service-tag">Segurança</span>
+      </div>
+    </div>
+
+    <div class="service-card">
+      <div class="service-emoji">🏡</div>
+      <div class="service-info">
+        <h3>Home Assistant</h3>
+        <p>Central de automação residencial. Controla ar-condicionado, luzes e dispositivos inteligentes.</p>
+        <span class="service-tag">Automação</span>
+      </div>
+    </div>
+
+    <div class="service-card">
+      <div class="service-emoji">🚫</div>
+      <div class="service-info">
+        <h3>AdGuard Home</h3>
+        <p>Bloqueia anúncios e rastreadores em toda a rede doméstica, em todos os dispositivos ao mesmo tempo.</p>
+        <span class="service-tag">Rede</span>
+      </div>
+    </div>
+
+    <div class="service-card">
+      <div class="service-emoji">📄</div>
+      <div class="service-info">
+        <h3>Paperless-NGX</h3>
+        <p>Digitaliza e organiza documentos com OCR. Busca em qualquer boleto, contrato ou nota fiscal.</p>
+        <span class="service-tag">Documentos</span>
+      </div>
+    </div>
+
+    <div class="service-card">
+      <div class="service-emoji">⚡</div>
+      <div class="service-info">
+        <h3>n8n</h3>
+        <p>Automação de tarefas entre serviços. Conecta apps, dispara alertas e processa dados automaticamente.</p>
+        <span class="service-tag">Automação</span>
+      </div>
+    </div>
+
+    <div class="service-card">
+      <div class="service-emoji">📊</div>
+      <div class="service-info">
+        <h3>Grafana + InfluxDB</h3>
+        <p>Dashboards em tempo real com métricas do servidor, rede, temperatura e status do no-break.</p>
+        <span class="service-tag">Monitoramento</span>
+      </div>
+    </div>
+
+    <div class="service-card">
+      <div class="service-emoji">📰</div>
+      <div class="service-info">
+        <h3>FreshRSS</h3>
+        <p>Leitor de notícias sem algoritmo. Você escolhe o que ler, sem feed patrocinado ou bolha de filtro.</p>
+        <span class="service-tag">Notícias</span>
+      </div>
+    </div>
+
+    <div class="service-card">
+      <div class="service-emoji">🗂️</div>
+      <div class="service-info">
+        <h3>Homepage</h3>
+        <p>Painel de controle centralizado com status de todos os serviços em tempo real.</p>
+        <span class="service-tag">Dashboard</span>
+      </div>
+    </div>
+
+    <div class="service-card">
+      <div class="service-emoji">🌐</div>
+      <div class="service-info">
+        <h3>Tailscale</h3>
+        <p>VPN mesh que permite acessar todos os serviços de qualquer lugar do mundo com segurança.</p>
+        <span class="service-tag">Acesso Remoto</span>
+      </div>
+    </div>
+
+    <div class="service-card">
+      <div class="service-emoji">🔋</div>
+      <div class="service-info">
+        <h3>Monitor de No-break</h3>
+        <p>Daemon customizado que acompanha a bateria do UPS em tempo real e protege os dados em caso de queda de energia.</p>
+        <span class="service-tag">Infraestrutura</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- HARDWARE -->
+<section id="hardware">
+  <div class="section-label">Infraestrutura física</div>
+  <h2 class="section-title">O hardware por trás de tudo</h2>
+  <p class="section-desc">
+    Um mini PC discreto consome menos energia que uma lâmpada e roda tudo isso 24 horas por dia.
+  </p>
+  <div class="hw-grid">
+    <div class="hw-card">
+      <div class="hw-icon">🖥️</div>
+      <h3>Servidor Principal</h3>
+      <div class="hw-spec"><span>Modelo</span><span>Beelink Mini S13</span></div>
+      <div class="hw-spec"><span>CPU</span><span>Intel N150</span></div>
+      <div class="hw-spec"><span>RAM</span><span>16 GB LPDDR4</span></div>
+      <div class="hw-spec"><span>Armazenamento</span><span>512 GB NVMe</span></div>
+      <div class="hw-spec"><span>Sistema</span><span>Proxmox VE</span></div>
+    </div>
+    <div class="hw-card">
+      <div class="hw-icon">💾</div>
+      <h3>Armazenamento de Dados</h3>
+      <div class="hw-spec"><span>Modelo</span><span>Seagate Exos X24</span></div>
+      <div class="hw-spec"><span>Capacidade</span><span>24 TB</span></div>
+      <div class="hw-spec"><span>Classe</span><span>Enterprise 24/7</span></div>
+      <div class="hw-spec"><span>Rotação</span><span>7200 RPM</span></div>
+      <div class="hw-spec"><span>Case</span><span>ORICO USB 3.0</span></div>
+    </div>
+    <div class="hw-card">
+      <div class="hw-icon">🔋</div>
+      <h3>No-break (UPS)</h3>
+      <div class="hw-spec"><span>Modelo</span><span>Ragtech Easy Pro</span></div>
+      <div class="hw-spec"><span>Capacidade</span><span>1200 VA</span></div>
+      <div class="hw-spec"><span>Tipo</span><span>Senoidal Puro</span></div>
+      <div class="hw-spec"><span>Monitoramento</span><span>Tempo real</span></div>
+      <div class="hw-spec"><span>Proteção</span><span>Shutdown automático</span></div>
+    </div>
+    <div class="hw-card">
+      <div class="hw-icon">🌐</div>
+      <h3>Rede</h3>
+      <div class="hw-spec"><span>Roteador</span><span>TP-Link AX1500</span></div>
+      <div class="hw-spec"><span>Padrão</span><span>Wi-Fi 6</span></div>
+      <div class="hw-spec"><span>ISP</span><span>Fibra GPON</span></div>
+      <div class="hw-spec"><span>DNS</span><span>AdGuard Home</span></div>
+      <div class="hw-spec"><span>DNS Backup</span><span>Raspberry Pi</span></div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- STACK -->
+<section id="stack">
+  <div class="section-label">Tecnologias</div>
+  <h2 class="section-title">Stack tecnológica</h2>
+  <p class="section-desc">Tudo open source, tudo sob controle.</p>
+  <div class="stack-grid">
+    <span class="stack-pill">🟠 Proxmox VE</span>
+    <span class="stack-pill">🐳 Docker</span>
+    <span class="stack-pill">🐧 Debian Linux</span>
+    <span class="stack-pill">🏠 Home Assistant</span>
+    <span class="stack-pill">📊 Grafana</span>
+    <span class="stack-pill">📈 InfluxDB</span>
+    <span class="stack-pill">🔄 Telegraf</span>
+    <span class="stack-pill">🔒 Tailscale</span>
+    <span class="stack-pill">🛡️ AdGuard Home</span>
+    <span class="stack-pill">🔑 Vaultwarden</span>
+    <span class="stack-pill">📷 Immich</span>
+    <span class="stack-pill">🎬 Jellyfin</span>
+    <span class="stack-pill">⚡ n8n</span>
+    <span class="stack-pill">📰 FreshRSS</span>
+    <span class="stack-pill">📄 Paperless-NGX</span>
+    <span class="stack-pill">🐍 Python</span>
+    <span class="stack-pill">🔧 Bash</span>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>Feito com 🖤 por <a href="https://github.com/mfrafael" target="_blank">mfrafael</a> &nbsp;·&nbsp;
+  Documentação completa no <a href="https://github.com/mfrafael/homelab" target="_blank">GitHub</a></p>
+</footer>
+
+</body>
+</html>
