@@ -1,0 +1,1277 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Storage Array — Homelab</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #0d1117;
+  --bg-card: #161b22;
+  --bg-hover: #1c2128;
+  --orange: #048AD0;
+  --orange-glow: rgba(4,138,208,0.18);
+  --accent2: #7D3EBB;
+  --green: #3fb950;
+  --green-bg: rgba(63,185,80,0.12);
+  --yellow: #d29922;
+  --yellow-bg: rgba(210,153,34,0.12);
+  --red: #f85149;
+  --red-bg: rgba(248,81,73,0.12);
+  --text: #e6edf3;
+  --muted: #7d8590;
+  --border: #21262d;
+  --border2: #30363d;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  line-height: 1.6;
+}
+
+/* ── Nav ── */
+nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(13,17,23,0.96);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
+  padding: 0.65rem 2rem;
+  display: flex; align-items: center; gap: 1.5rem;
+}
+.nav-logo {
+  font-weight: 700; font-size: 0.9rem; text-decoration: none; white-space: nowrap;
+  background: linear-gradient(135deg, #048AD0, #7D3EBB);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.nav-drives { display: flex; gap: 0.35rem; flex-wrap: wrap; }
+.nav-drives a {
+  text-decoration: none; padding: 0.2rem 0.55rem; border-radius: 6px;
+  font-size: 0.78rem; font-weight: 600; font-family: 'SF Mono','Fira Code',monospace;
+  transition: background 0.15s; border: 1px solid transparent;
+}
+.nav-drives a.g  { color: var(--green);  border-color: rgba(63,185,80,0.25); }
+.nav-drives a.y  { color: var(--yellow); border-color: rgba(210,153,34,0.25); }
+.nav-drives a.r  { color: var(--red);    border-color: rgba(248,81,73,0.25); }
+.nav-drives a:hover { background: var(--bg-hover); }
+
+/* ── Hero ── */
+.hero {
+  max-width: 1200px; margin: 0 auto;
+  padding: 3.5rem 2rem 2rem;
+}
+.hero h1 { font-size: 2.4rem; font-weight: 700; margin-bottom: 0.4rem; }
+.hero h1 span { color: var(--orange); }
+.hero .sub { color: var(--muted); font-size: 0.95rem; margin-bottom: 2.5rem; }
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1rem; margin-bottom: 0;
+}
+@media (max-width: 900px) { .stats-grid { grid-template-columns: repeat(3,1fr); } }
+@media (max-width: 500px) { .stats-grid { grid-template-columns: repeat(2,1fr); } }
+
+.stat-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 12px; padding: 1.4rem 1rem; text-align: center;
+}
+.stat-card .val {
+  font-size: 2.2rem; font-weight: 700;
+  font-family: 'SF Mono','Fira Code',monospace;
+  line-height: 1; margin-bottom: 0.35rem;
+}
+.stat-card .lbl { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.stat-card.co .val {
+  background: linear-gradient(135deg, #048AD0 0%, #7B3FBE 50%, #7D3EBB 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.stat-card.cg .val { color: var(--green); }
+.stat-card.cy .val { color: var(--yellow); }
+.stat-card.cr .val { color: var(--red); }
+
+/* ── Section ── */
+section { max-width: 1200px; margin: 0 auto; padding: 3rem 2rem; }
+@media (max-width: 600px) { section { padding: 2rem 1rem; } .hero { padding: 2rem 1rem 1rem; } }
+
+.sec-title {
+  font-size: 1.15rem; font-weight: 600; margin-bottom: 1.5rem;
+  padding-bottom: 0.6rem; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.sec-title::before {
+  content: ''; display: inline-block; width: 3px; height: 1em;
+  background: var(--orange); border-radius: 2px;
+}
+
+/* ── Drive Cards ── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  gap: 1.1rem;
+}
+@media (max-width: 700px) { .grid { grid-template-columns: 1fr; } }
+
+.dcard {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 12px; overflow: hidden;
+  text-decoration: none; color: inherit; display: block;
+  transition: transform 0.22s, border-color 0.22s, box-shadow 0.22s;
+}
+.dcard:hover { transform: translateY(-3px); border-color: var(--border2); box-shadow: 0 8px 28px rgba(0,0,0,0.35); }
+.dcard.bg { border-left: 3px solid var(--green); }
+.dcard.by { border-left: 3px solid var(--yellow); }
+.dcard.br { border-left: 3px solid var(--red); }
+
+.cimg {
+  position: relative; height: 170px;
+  background: #080c11; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+}
+.cimg img { max-height: 148px; max-width: 92%; object-fit: contain; transition: transform 0.3s; }
+.dcard:hover .cimg img { transform: scale(1.05); }
+
+.cletter {
+  position: absolute; top: 0.65rem; left: 0.65rem;
+  background: rgba(13,17,23,0.82); backdrop-filter: blur(6px);
+  border: 1px solid var(--border); border-radius: 7px;
+  padding: 0.2rem 0.55rem;
+  font-family: 'SF Mono','Fira Code',monospace; font-weight: 700; font-size: 0.85rem;
+  color: var(--orange);
+}
+.cbadge {
+  position: absolute; top: 0.65rem; right: 0.65rem;
+  padding: 0.2rem 0.6rem; border-radius: 20px;
+  font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+}
+.cbadge.g { background: var(--green-bg);  color: var(--green); }
+.cbadge.y { background: var(--yellow-bg); color: var(--yellow); }
+.cbadge.r { background: var(--red-bg);    color: var(--red); }
+
+.cbody { padding: 1.1rem; }
+.cmodel { font-weight: 600; font-size: 0.92rem; margin-bottom: 0.2rem; }
+.ccap { font-size: 0.78rem; color: var(--muted); margin-bottom: 0.9rem; }
+.cmetrics { display: flex; flex-direction: column; gap: 0.42rem; }
+.cmet {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 0.78rem;
+}
+.cmet-lbl { color: var(--muted); }
+.cmet-val { font-family: 'SF Mono',monospace; font-weight: 600; font-size: 0.75rem; }
+.cmet-val.ok   { color: var(--green); }
+.cmet-val.warn { color: var(--yellow); }
+.cmet-val.crit { color: var(--red); }
+
+.clink { display: block; margin-top: 0.9rem; font-size: 0.76rem; color: var(--orange); text-align: right; opacity: 0.65; }
+.dcard:hover .clink { opacity: 1; }
+
+/* ── Detail Sections ── */
+.detail { margin-bottom: 3rem; scroll-margin-top: 80px; }
+
+.detail-head {
+  display: flex; gap: 2rem; align-items: flex-start;
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem;
+}
+.detail-head.warn-border { border-color: rgba(210,153,34,0.35); }
+.detail-head.crit-border { border-color: rgba(248,81,73,0.35); background: rgba(248,81,73,0.03); }
+
+.detail-img {
+  width: 190px; flex-shrink: 0;
+  background: #080c11; border-radius: 8px; padding: 0.9rem;
+  display: flex; align-items: center; justify-content: center; height: 130px;
+}
+.detail-img img { max-height: 110px; max-width: 170px; object-fit: contain; }
+
+.detail-info { flex: 1; }
+.detail-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 0.25rem; }
+.detail-sub { font-size: 0.85rem; color: var(--muted); margin-bottom: 0.9rem; }
+
+.hbadge {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  padding: 0.35rem 0.9rem; border-radius: 20px;
+  font-size: 0.82rem; font-weight: 700; margin-bottom: 0.85rem;
+}
+.hbadge.g { background: var(--green-bg);  color: var(--green);  border: 1px solid rgba(63,185,80,0.3); }
+.hbadge.y { background: var(--yellow-bg); color: var(--yellow); border: 1px solid rgba(210,153,34,0.3); }
+.hbadge.r { background: var(--red-bg);    color: var(--red);    border: 1px solid rgba(248,81,73,0.3); }
+
+.note {
+  font-size: 0.82rem; color: var(--muted);
+  padding: 0.7rem 1rem; border-left: 3px solid var(--border2);
+  border-radius: 0 6px 6px 0; background: rgba(255,255,255,0.02);
+}
+.note.warn-note { border-left-color: var(--yellow); }
+.note.crit-note { border-left-color: var(--red); color: #b0bec5; }
+
+@media (max-width: 700px) {
+  .detail-head { flex-direction: column; }
+  .detail-img { width: 100%; height: 150px; }
+}
+
+/* ── Tables ── */
+.trow { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 0; }
+@media (max-width: 700px) { .trow { grid-template-columns: 1fr; } }
+
+.twrap {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 10px; overflow: hidden;
+}
+.twrap h4 {
+  padding: 0.65rem 1rem; font-size: 0.72rem; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted);
+  border-bottom: 1px solid var(--border); background: rgba(255,255,255,0.02);
+}
+table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+td { padding: 0.5rem 1rem; border-bottom: 1px solid rgba(33,38,45,0.8); }
+tr:last-child td { border-bottom: none; }
+td:first-child { color: var(--muted); width: 48%; font-size: 0.76rem; }
+td:last-child { font-family: 'SF Mono','Fira Code',monospace; font-size: 0.76rem; text-align: right; }
+.ok   { color: var(--green); }
+.warn { color: var(--yellow); }
+.crit { color: var(--red); }
+
+/* ── Risk Matrix ── */
+.risk-wrap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.risk-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+.risk-table th {
+  padding: 0.65rem 1.1rem; text-align: left;
+  font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--muted); border-bottom: 1px solid var(--border); background: rgba(255,255,255,0.02);
+}
+.risk-table td { padding: 0.65rem 1.1rem; border-bottom: 1px solid rgba(33,38,45,0.7); }
+.risk-table tr:last-child td { border-bottom: none; }
+.risk-table tr.rh td:first-child { border-left: 3px solid var(--red); }
+.risk-table tr.rm td:first-child { border-left: 3px solid var(--yellow); }
+.risk-table tr.rl td:first-child { border-left: 3px solid var(--green); }
+.risk-table tr.rh { background: rgba(248,81,73,0.04); }
+.risk-table tr.rm { background: rgba(210,153,34,0.04); }
+
+.rbadge { display: inline-flex; padding: 0.18rem 0.55rem; border-radius: 4px; font-size: 0.7rem; font-weight: 700; }
+.rbadge.g { background: var(--green-bg);  color: var(--green); }
+.rbadge.y { background: var(--yellow-bg); color: var(--yellow); }
+.rbadge.r { background: var(--red-bg);    color: var(--red); }
+
+.ubadge { display: inline-flex; padding: 0.18rem 0.55rem; border-radius: 4px; font-size: 0.7rem; font-weight: 700; }
+.ubadge.imm { background: var(--red-bg);    color: var(--red); }
+.ubadge.hi  { background: var(--yellow-bg); color: var(--yellow); }
+.ubadge.nor { background: rgba(255,255,255,0.06); color: var(--muted); }
+
+/* ── Action Plan ── */
+.actions { display: flex; flex-direction: column; gap: 0.9rem; }
+.aitem {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 10px; padding: 1.1rem 1.25rem;
+  display: flex; align-items: flex-start; gap: 1rem;
+}
+.aitem.ac { border-left: 3px solid var(--red); }
+.aitem.aw { border-left: 3px solid var(--yellow); }
+.aitem.ai { border-left: 3px solid var(--orange); }
+.aicon { font-size: 1.4rem; line-height: 1; flex-shrink: 0; margin-top: 0.1rem; }
+.acontent h4 { font-size: 0.88rem; font-weight: 600; margin-bottom: 0.3rem; }
+.acontent p  { font-size: 0.8rem; color: var(--muted); }
+.atag { display: inline; padding: 0.12rem 0.45rem; border-radius: 3px; font-size: 0.67rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; margin-left: 0.45rem; }
+.atag.c { background: var(--red-bg);    color: var(--red); }
+.atag.w { background: var(--yellow-bg); color: var(--yellow); }
+
+/* ── Stats ── */
+.stat2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+@media (max-width: 600px) { .stat2 { grid-template-columns: 1fr; } }
+
+.scap { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 1.4rem; }
+.scap h4 { font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 1.2rem; }
+.caprow { display: flex; align-items: center; gap: 0.7rem; margin-bottom: 0.65rem; font-size: 0.8rem; }
+.caplbl { width: 90px; color: var(--muted); font-size: 0.76rem; }
+.capbar-wrap { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.capbar { height: 100%; border-radius: 3px; }
+.capbar.bo { background: var(--orange); }
+.capbar.bg { background: var(--green); }
+.capbar.bb { background: #58a6ff; }
+.capval { width: 56px; text-align: right; font-family: 'SF Mono',monospace; font-size: 0.75rem; color: var(--muted); }
+
+.hrow { display: flex; align-items: center; gap: 0.7rem; margin-bottom: 0.7rem; font-size: 0.83rem; }
+.hdot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.hdot.g { background: var(--green); }
+.hdot.y { background: var(--yellow); }
+.hdot.r { background: var(--red); }
+.hcount { font-family: 'SF Mono',monospace; font-weight: 700; min-width: 22px; }
+
+.hbar-wrap {
+  margin-top: 1.2rem; height: 8px; background: var(--border);
+  border-radius: 4px; overflow: hidden; display: flex;
+}
+
+/* ── Checklist ── */
+.checks {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 10px; padding: 1.4rem;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 0.55rem;
+}
+@media (max-width: 600px) { .checks { grid-template-columns: 1fr; } }
+.chk { display: flex; align-items: center; gap: 0.55rem; font-size: 0.83rem; }
+.chkbox { width: 17px; height: 17px; border: 2px solid var(--border2); border-radius: 4px; flex-shrink: 0; }
+
+/* ── Footer ── */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 1.75rem 2rem; text-align: center;
+  font-size: 0.78rem; color: var(--muted);
+}
+footer a { color: var(--orange); text-decoration: none; }
+footer p + p { margin-top: 0.35rem; }
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--orange); }
+
+/* ── Background: grid + glow ── */
+.page-bg {
+  position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(4,138,208,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(4,138,208,0.04) 1px, transparent 1px);
+  background-size: 52px 52px;
+}
+.page-bg::after {
+  content: '';
+  position: absolute;
+  top: -20%; left: 50%; transform: translateX(-50%);
+  width: 1100px; height: 750px;
+  background:
+    radial-gradient(ellipse at 38% 30%, rgba(4,138,208,0.18) 0%, transparent 55%),
+    radial-gradient(ellipse at 62% 30%, rgba(207,1,70,0.14) 0%, transparent 55%);
+  animation: pg-pulse 6s ease-in-out infinite;
+}
+@keyframes pg-pulse {
+  0%,100% { opacity: 0.55; transform: translateX(-50%) scale(1); }
+  50%      { opacity: 1;    transform: translateX(-50%) scale(1.09); }
+}
+
+/* ── Hero title gradient ── */
+.hero h1 span {
+  background: linear-gradient(135deg, #048AD0 0%, #7B3FBE 50%, #7D3EBB 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Card shimmer + glow ── */
+.dcard { position: relative; }
+.dcard::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(4,138,208,0.08) 50%, transparent 100%);
+  transform: translateX(-100%); transition: transform 0.55s; z-index: 2; pointer-events: none;
+}
+.dcard:hover::before { transform: translateX(100%); }
+.dcard::after {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(circle at 25% 25%, rgba(4,138,208,0.06) 0%, transparent 55%);
+  opacity: 0; transition: opacity 0.3s; z-index: 1; pointer-events: none;
+}
+.dcard:hover::after { opacity: 1; }
+.dcard.br:hover { box-shadow: 0 8px 28px rgba(0,0,0,0.4), 0 0 0 1px rgba(248,81,73,0.2); }
+.dcard.by:hover { box-shadow: 0 8px 28px rgba(0,0,0,0.4), 0 0 0 1px rgba(210,153,34,0.2); }
+.dcard.bg:hover { box-shadow: 0 8px 28px rgba(0,0,0,0.4), 0 0 0 1px rgba(63,185,80,0.15); }
+
+/* ── Stat card glow ── */
+.stat-card { position: relative; overflow: hidden; transition: border-color 0.2s, box-shadow 0.2s; }
+.stat-card.co { border-color: rgba(4,138,208,0.35); box-shadow: 0 0 24px rgba(4,138,208,0.08) inset; }
+.stat-card.cg { border-color: rgba(63,185,80,0.2); }
+.stat-card.cy { border-color: rgba(210,153,34,0.2); }
+.stat-card.cr { border-color: rgba(248,81,73,0.2); }
+.stat-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.3); }
+
+/* ── Dual boot badge ── */
+.dboot-row {
+  display: flex; gap: 0.5rem; margin-top: 0.75rem; flex-wrap: wrap;
+}
+.dboot-pill {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  padding: 0.25rem 0.7rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600;
+  border: 1px solid var(--border2);
+}
+.dboot-pill.win { background: rgba(4,138,208,0.12); color: #048AD0; border-color: rgba(4,138,208,0.3); }
+.dboot-pill.lnx { background: rgba(207,1,70,0.12);  color: #7D3EBB; border-color: rgba(207,1,70,0.3); }
+.dboot-pill.off { background: rgba(255,255,255,0.04); color: var(--muted); border-color: var(--border2); }
+</style>
+</head>
+<body>
+<div class="page-bg" aria-hidden="true"></div>
+
+<nav>
+  <a href="#" class="nav-logo">💾 Storage Array</a>
+  <div class="nav-drives">
+    <a href="#cg" class="g">NVMe</a>
+    <a href="#dd" class="g">Ironwolf</a>
+    <a href="#hh" class="g">Exos</a>
+    <a href="#mm" class="y">Music</a>
+    <a href="#pp" class="g">Photos</a>
+    <a href="#rr" class="g">Retro</a>
+    <a href="#ss" class="g">Vault</a>
+    <a href="#vv" class="g">Vazio</a>
+    <a href="#zz" class="r">Zombie</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <h1>Storage Array <span>Inventory</span></h1>
+  <p class="sub">Documentação completa de todos os drives do homelab · Atualizado em Maio 2026</p>
+  <div class="stats-grid">
+    <div class="stat-card co">
+      <div class="val" data-count="64.9" data-suffix=" TB">0</div>
+      <div class="lbl">Capacidade Total</div>
+    </div>
+    <div class="stat-card cg">
+      <div class="val" data-count="7">0</div>
+      <div class="lbl">Drives Saudáveis</div>
+    </div>
+    <div class="stat-card cy">
+      <div class="val" data-count="1">0</div>
+      <div class="lbl">Em Risco</div>
+    </div>
+    <div class="stat-card cr">
+      <div class="val" data-count="1">0</div>
+      <div class="lbl">Críticos</div>
+    </div>
+    <div class="stat-card">
+      <div class="val" style="color:var(--text)">9</div>
+      <div class="lbl">Total de Drives</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Overview Grid ── -->
+<section>
+  <h2 class="sec-title">Visão Geral</h2>
+  <div class="grid">
+
+    <a href="#cg" class="dcard bg">
+      <div class="cimg">
+        <img src="./storages/C G Drive.png" alt="Samsung 980 PRO">
+        <div class="cletter">NVMe</div>
+        <div class="cbadge g">Impecável</div>
+      </div>
+      <div class="cbody">
+        <div class="cmodel">Samsung 980 PRO 1TB</div>
+        <div class="ccap">953 GB · NVMe PCIe 4.0 · Dual Boot</div>
+        <div class="cmetrics">
+          <div class="cmet"><span class="cmet-lbl">Vida útil restante</span><span class="cmet-val ok">78%</span></div>
+          <div class="cmet"><span class="cmet-lbl">Horas de uso</span><span class="cmet-val">14.742 h (~1.7 anos)</span></div>
+          <div class="cmet"><span class="cmet-lbl">Erros críticos</span><span class="cmet-val ok">Nenhum</span></div>
+        </div>
+        <div class="dboot-row">
+          <span class="dboot-pill win">⊞ C: — Windows (250 GB)</span>
+          <span class="dboot-pill lnx">🐧 / — CachyOS root (250 GB)</span>
+        </div>
+        <span class="clink">Ver ficha completa →</span>
+      </div>
+    </a>
+
+    <a href="#dd" class="dcard bg">
+      <div class="cimg">
+        <img src="./storages/D Drive.png" alt="Seagate IronWolf 4TB">
+        <div class="cletter">Ironwolf</div>
+        <div class="cbadge g">Impecável</div>
+      </div>
+      <div class="cbody">
+        <div class="cmodel">Seagate IronWolf 4TB</div>
+        <div class="ccap">3.8 TB · SATA III · Desktop (Dados)</div>
+        <div class="cmetrics">
+          <div class="cmet"><span class="cmet-lbl">Setores com falha</span><span class="cmet-val ok">0</span></div>
+          <div class="cmet"><span class="cmet-lbl">Horas de uso</span><span class="cmet-val">6.258 h (~8.7 meses)</span></div>
+          <div class="cmet"><span class="cmet-lbl">Self-Test</span><span class="cmet-val ok">Sucesso (23/11/2025)</span></div>
+        </div>
+        <div class="dboot-row">
+          <span class="dboot-pill win">⊞ D: — Windows</span>
+          <span class="dboot-pill lnx">🐧 /mnt/ironwolf</span>
+        </div>
+        <span class="clink">Ver ficha completa →</span>
+      </div>
+    </a>
+
+    <a href="#hh" class="dcard bg">
+      <div class="cimg">
+        <img src="./storages/H Drive.png" alt="Seagate Exos X24">
+        <div class="cletter">Exos</div>
+        <div class="cbadge g">Enterprise</div>
+      </div>
+      <div class="cbody">
+        <div class="cmodel">Seagate Exos X24 24TB</div>
+        <div class="ccap">24.0 TB · SATA III · Homelab (7200 RPM)</div>
+        <div class="cmetrics">
+          <div class="cmet"><span class="cmet-lbl">Horas de uso</span><span class="cmet-val ok">61 h (praticamente novo)</span></div>
+          <div class="cmet"><span class="cmet-lbl">Setores realocados</span><span class="cmet-val ok">0</span></div>
+          <div class="cmet"><span class="cmet-lbl">Classe</span><span class="cmet-val">Enterprise Grade 24/7</span></div>
+        </div>
+        <div class="dboot-row">
+          <span class="dboot-pill lnx">🐧 /mnt/homelab (CIFS)</span>
+        </div>
+        <span class="clink">Ver ficha completa →</span>
+      </div>
+    </a>
+
+    <a href="#mm" class="dcard by">
+      <div class="cimg">
+        <img src="./storages/M Drive.png" alt="Seagate Momentus 750GB">
+        <div class="cletter" style="color:var(--yellow)">Music</div>
+        <div class="cbadge y">⚠ Risco</div>
+      </div>
+      <div class="cbody">
+        <div class="cmodel">Seagate Momentus 750GB</div>
+        <div class="ccap">715 GB · USB 3.0 · Externo (Music Backup)</div>
+        <div class="cmetrics">
+          <div class="cmet"><span class="cmet-lbl">Setores pendentes</span><span class="cmet-val crit">171 🔴</span></div>
+          <div class="cmet"><span class="cmet-lbl">Erros não corrigíveis</span><span class="cmet-val crit">939 🔴</span></div>
+          <div class="cmet"><span class="cmet-lbl">G-Sense (impactos)</span><span class="cmet-val warn">1.057</span></div>
+        </div>
+        <div class="dboot-row">
+          <span class="dboot-pill win">⊞ M: — Windows</span>
+          <span class="dboot-pill off">🐧 não montado</span>
+        </div>
+        <span class="clink" style="color:var(--yellow)">Ver ficha completa →</span>
+      </div>
+    </a>
+
+    <a href="#pp" class="dcard bg">
+      <div class="cimg">
+        <img src="./storages/P Drive.png" alt="Seagate Expansion 2TB">
+        <div class="cletter">Photos</div>
+        <div class="cbadge g">Físico OK</div>
+      </div>
+      <div class="cbody">
+        <div class="cmodel">Seagate Expansion 2TB</div>
+        <div class="ccap">1.9 TB · USB 3.0 · Externo (Fotos)</div>
+        <div class="cmetrics">
+          <div class="cmet"><span class="cmet-lbl">Setores físicos</span><span class="cmet-val ok">0 falhas</span></div>
+          <div class="cmet"><span class="cmet-lbl">Erros CRC (USB)</span><span class="cmet-val warn">8.764 (cabo/enclosure)</span></div>
+          <div class="cmet"><span class="cmet-lbl">Horas de uso</span><span class="cmet-val">25.485 h (~2.9 anos)</span></div>
+        </div>
+        <div class="dboot-row">
+          <span class="dboot-pill win">⊞ P: — Windows</span>
+          <span class="dboot-pill off">🐧 não montado</span>
+        </div>
+        <span class="clink">Ver ficha completa →</span>
+      </div>
+    </a>
+
+    <a href="#rr" class="dcard bg">
+      <div class="cimg">
+        <img src="./storages/R Drive.png" alt="Seagate IronWolf 4TB Retrogaming">
+        <div class="cletter">Retro</div>
+        <div class="cbadge g">Impecável</div>
+      </div>
+      <div class="cbody">
+        <div class="cmodel">Seagate IronWolf 4TB</div>
+        <div class="ccap">3.8 TB · SATA III · Desktop (Retrogaming)</div>
+        <div class="cmetrics">
+          <div class="cmet"><span class="cmet-lbl">Setores com falha</span><span class="cmet-val ok">0</span></div>
+          <div class="cmet"><span class="cmet-lbl">Horas de uso</span><span class="cmet-val">13.635 h (~1.6 anos)</span></div>
+          <div class="cmet"><span class="cmet-lbl">Self-Test</span><span class="cmet-val ok">OK</span></div>
+        </div>
+        <div class="dboot-row">
+          <span class="dboot-pill win">⊞ R: — Windows</span>
+          <span class="dboot-pill lnx">🐧 /mnt/retro</span>
+        </div>
+        <span class="clink">Ver ficha completa →</span>
+      </div>
+    </a>
+
+    <a href="#ss" class="dcard bg">
+      <div class="cimg">
+        <img src="./storages/S Drive.png" alt="Seagate Expansion 12TB">
+        <div class="cletter">Vault</div>
+        <div class="cbadge g">Impecável</div>
+      </div>
+      <div class="cbody">
+        <div class="cmodel">Seagate Expansion 12TB</div>
+        <div class="ccap">11.4 TB · USB 3.0 · Externo (Media Server)</div>
+        <div class="cmetrics">
+          <div class="cmet"><span class="cmet-lbl">Setores com falha</span><span class="cmet-val ok">0</span></div>
+          <div class="cmet"><span class="cmet-lbl">Horas de uso</span><span class="cmet-val">4.005 h (~5.5 meses)</span></div>
+          <div class="cmet"><span class="cmet-lbl">Self-Test</span><span class="cmet-val ok">Sucesso (27/09/2025)</span></div>
+        </div>
+        <div class="dboot-row">
+          <span class="dboot-pill win">⊞ S: — Windows</span>
+          <span class="dboot-pill off">🐧 não montado</span>
+        </div>
+        <span class="clink">Ver ficha completa →</span>
+      </div>
+    </a>
+
+    <a href="#vv" class="dcard bg">
+      <div class="cimg">
+        <img src="./storages/V Drive.png" alt="Seagate Momentus 700GB">
+        <div class="cletter">Vazio</div>
+        <div class="cbadge g">Ótima</div>
+      </div>
+      <div class="cbody">
+        <div class="cmodel">Seagate Momentus 700GB</div>
+        <div class="ccap">715 GB · USB 3.0 · Externo (Backup portátil)</div>
+        <div class="cmetrics">
+          <div class="cmet"><span class="cmet-lbl">Setores com falha</span><span class="cmet-val ok">0</span></div>
+          <div class="cmet"><span class="cmet-lbl">Horas de uso</span><span class="cmet-val">6.815 h (~9.4 meses)</span></div>
+          <div class="cmet"><span class="cmet-lbl">Fabricado</span><span class="cmet-val">Junho 2012 (ótimo estado)</span></div>
+        </div>
+        <div class="dboot-row">
+          <span class="dboot-pill win">⊞ V: — Windows</span>
+          <span class="dboot-pill off">🐧 não montado</span>
+        </div>
+        <span class="clink">Ver ficha completa →</span>
+      </div>
+    </a>
+
+    <a href="#zz" class="dcard br">
+      <div class="cimg" style="background:rgba(248,81,73,0.06)">
+        <img src="./storages/Z Drive.png" alt="Seagate Barracuda 4TB">
+        <div class="cletter" style="color:var(--red)">Zombie</div>
+        <div class="cbadge r">☠ Crítico</div>
+      </div>
+      <div class="cbody">
+        <div class="cmodel">Seagate Barracuda 4TB</div>
+        <div class="ccap">3.8 TB · SATA III · Desktop (Falha Progressiva)</div>
+        <div class="cmetrics">
+          <div class="cmet"><span class="cmet-lbl">Setores realocados</span><span class="cmet-val crit">1.208 🔴</span></div>
+          <div class="cmet"><span class="cmet-lbl">Erros não corrigíveis</span><span class="cmet-val crit">2.445 🔴</span></div>
+          <div class="cmet"><span class="cmet-lbl">Horas de uso</span><span class="cmet-val warn">39.396 h (~4.5 anos)</span></div>
+        </div>
+        <div class="dboot-row">
+          <span class="dboot-pill win">⊞ Z: — Windows</span>
+          <span class="dboot-pill lnx">🐧 /mnt/zombie</span>
+        </div>
+        <span class="clink" style="color:var(--red)">Ver ficha completa →</span>
+      </div>
+    </a>
+
+  </div>
+</section>
+
+<!-- ── Fichas Técnicas ── -->
+<section>
+  <h2 class="sec-title">Fichas Técnicas Detalhadas</h2>
+
+  <!-- C/G -->
+  <div class="detail" id="cg">
+    <div class="detail-head">
+      <div class="detail-img"><img src="./storages/C G Drive.png" alt="Samsung 980 PRO"></div>
+      <div class="detail-info">
+        <div class="detail-title">Drive NVMe — Samsung 980 PRO</div>
+        <div class="detail-sub">Dual Boot · SSD NVMe PCIe 4.0 · Desktop</div>
+        <div class="hbadge g">🟢 IMPECÁVEL — Alto Desempenho</div>
+        <div class="note">SSD PCIe 4.0 particionado para dual boot: 250 GB como C: no Windows e 250 GB como filesystem root do CachyOS Linux. 79% de vida útil restante, temperatura bem abaixo do limiar de 82°C. Os 59 desligamentos não seguros são moderados e não representam risco.</div>
+        <div class="dboot-row">
+          <span class="dboot-pill win">⊞ Windows — C: (250 GB)</span>
+          <span class="dboot-pill lnx">🐧 CachyOS Linux — / root (250 GB)</span>
+        </div>
+      </div>
+    </div>
+    <div class="trow">
+      <div class="twrap">
+        <h4>Ficha Técnica</h4>
+        <table>
+          <tr><td>Fabricante</td><td>Samsung</td></tr>
+          <tr><td>Modelo</td><td>SSD 980 PRO 1TB</td></tr>
+          <tr><td>Número de Série</td><td>S5P2NG0R933687D</td></tr>
+          <tr><td>Interface</td><td>PCIe 4.0 x4 (NVMe)</td></tr>
+          <tr><td>Firmware</td><td>3B2QGXA7</td></tr>
+          <tr><td>Capacidade Real</td><td>953 GB (M.2 2280)</td></tr>
+          <tr><td>Partição Windows</td><td style="color:#048AD0">C: — 250 GB</td></tr>
+          <tr><td>Partição Linux</td><td style="color:#7D3EBB">/ (CachyOS root) — 250 GB</td></tr>
+          <tr><td>Tipo de Memória</td><td>128-layer 3D TLC V-NAND</td></tr>
+        </table>
+      </div>
+      <div class="twrap">
+        <h4>Diagnóstico SMART</h4>
+        <table>
+          <tr><td>Tempo de Vida</td><td><span class="ok">14.742 h (~1.7 anos)</span></td></tr>
+          <tr><td>Ciclos de Potência</td><td>2.101</td></tr>
+          <tr><td>Desligamentos Não Seguros</td><td><span class="warn">101</span></td></tr>
+          <tr><td>Temperatura</td><td><span class="ok">42°C / 47°C (sensor 2, limiar: 82°C)</span></td></tr>
+          <tr><td>Vida Útil Restante</td><td><span class="ok">78% (Available Spare: 100%)</span></td></tr>
+          <tr><td>Uso do Ciclo de Vida</td><td><span class="ok">22%</span></td></tr>
+          <tr><td>Erros de Integridade</td><td><span class="ok">0</span></td></tr>
+          <tr><td>Critical Warning</td><td><span class="ok">0x00</span></td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- D -->
+  <div class="detail" id="dd">
+    <div class="detail-head">
+      <div class="detail-img"><img src="./storages/D Drive.png" alt="IronWolf 4TB"></div>
+      <div class="detail-info">
+        <div class="detail-title">Drive D: — Seagate IronWolf 4TB</div>
+        <div class="detail-sub">Dados · HDD SATA III · Desktop</div>
+        <div class="hbadge g">🟢 IMPECÁVEL — NAS Grade</div>
+        <div class="note">Drive NAS em condição perfeita — zero falhas SMART. Em estágio inicial de uso e totalmente confiável para dados primários: fotos, documentos e backups.</div>
+      </div>
+    </div>
+    <div class="trow">
+      <div class="twrap">
+        <h4>Ficha Técnica</h4>
+        <table>
+          <tr><td>Fabricante</td><td>Seagate Technology</td></tr>
+          <tr><td>Modelo</td><td>IronWolf ST4000VN006-3CW104</td></tr>
+          <tr><td>Número de Série</td><td>ZW62M4K7</td></tr>
+          <tr><td>Interface</td><td>SATA III (6 Gbps)</td></tr>
+          <tr><td>Firmware</td><td>SC60</td></tr>
+          <tr><td>Capacidade Real</td><td>3.8 TB</td></tr>
+          <tr><td>RPM</td><td>5400 RPM</td></tr>
+          <tr><td>Data de Instalação</td><td>16/08/2025</td></tr>
+          <tr><td>Windows</td><td style="color:#048AD0">D:</td></tr>
+          <tr><td>Linux</td><td style="color:#7D3EBB">/mnt/ironwolf</td></tr>
+        </table>
+      </div>
+      <div class="twrap">
+        <h4>Diagnóstico SMART</h4>
+        <table>
+          <tr><td>Tempo de Vida</td><td><span class="ok">6.258 h (~8.7 meses)</span></td></tr>
+          <tr><td>Ciclos de Potência</td><td>877</td></tr>
+          <tr><td>Setores Realocados</td><td><span class="ok">0</span></td></tr>
+          <tr><td>Setores Pendentes</td><td><span class="ok">0</span></td></tr>
+          <tr><td>Erros Não Corrigíveis</td><td><span class="ok">0</span></td></tr>
+          <tr><td>Temperatura de Ar</td><td><span class="ok">41°C</span></td></tr>
+          <tr><td>Todos Atributos SMART</td><td><span class="ok">OK — Zero falhas</span></td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- H -->
+  <div class="detail" id="hh">
+    <div class="detail-head">
+      <div class="detail-img"><img src="./storages/H Drive.png" alt="Exos X24"></div>
+      <div class="detail-info">
+        <div class="detail-title">Drive H: — Seagate Exos X24 24TB</div>
+        <div class="detail-sub">Homelab · HDD SATA III Enterprise · 7200 RPM</div>
+        <div class="hbadge g">🟢 IMPECÁVEL — Enterprise Grade</div>
+        <div class="note">Drive Enterprise em estado de novo. O mais confiável e performático do setup — otimizado para operação 24/7. Perfeito como coração do Homelab e Media Server. Monitorar SMART mensalmente.</div>
+      </div>
+    </div>
+    <div class="trow">
+      <div class="twrap">
+        <h4>Ficha Técnica</h4>
+        <table>
+          <tr><td>Fabricante</td><td>Seagate Technology</td></tr>
+          <tr><td>Modelo</td><td>Exos X24 (Enterprise Grade)</td></tr>
+          <tr><td>Número de Série</td><td>ZYD0CB2X</td></tr>
+          <tr><td>Interface</td><td>SATA III (6 Gbps)</td></tr>
+          <tr><td>Firmware</td><td>SN04</td></tr>
+          <tr><td>Capacidade Real</td><td>24.0 TB</td></tr>
+          <tr><td>RPM</td><td>7200 RPM</td></tr>
+          <tr><td>Setor Físico</td><td>512B lógico / 4096B físico</td></tr>
+          <tr><td>Linux</td><td style="color:#7D3EBB">/mnt/homelab (CIFS via Proxmox)</td></tr>
+        </table>
+      </div>
+      <div class="twrap">
+        <h4>Diagnóstico SMART</h4>
+        <table>
+          <tr><td>Tempo de Vida</td><td><span class="ok">61 h (praticamente novo)</span></td></tr>
+          <tr><td>Ciclos de Potência</td><td><span class="ok">5</span></td></tr>
+          <tr><td>Setores Realocados</td><td><span class="ok">0</span></td></tr>
+          <tr><td>Setores Pendentes</td><td><span class="ok">0</span></td></tr>
+          <tr><td>Temperatura</td><td><span class="ok">43°C</span></td></tr>
+          <tr><td>Ciclos de Carga</td><td><span class="ok">8</span></td></tr>
+          <tr><td>SMART Status</td><td><span class="ok">Todas OK</span></td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- M -->
+  <div class="detail" id="mm">
+    <div class="detail-head warn-border">
+      <div class="detail-img"><img src="./storages/M Drive.png" alt="Momentus 750GB"></div>
+      <div class="detail-info">
+        <div class="detail-title">Drive M: — Seagate Momentus 750GB</div>
+        <div class="detail-sub">Music Backup · HDD USB 3.0 · Externo Portátil</div>
+        <div class="hbadge y">⚠ INSTÁVEL — Alto Risco de Dados</div>
+        <div class="note warn-note">171 setores pendentes e 939 erros não corrigíveis indicam instabilidade de leitura e risco real de perda de dados. G-Sense de 1.057 sugere impactos físicos. Não usar como único backup — migrar dados críticos imediatamente.</div>
+      </div>
+    </div>
+    <div class="trow">
+      <div class="twrap">
+        <h4>Ficha Técnica</h4>
+        <table>
+          <tr><td>Fabricante</td><td>Seagate Technology</td></tr>
+          <tr><td>Modelo</td><td>Momentus 7200.5 (ST9750420AS)</td></tr>
+          <tr><td>Número de Série</td><td>5WS3JQCF</td></tr>
+          <tr><td>Interface</td><td>USB 3.0 UASP / SATA II</td></tr>
+          <tr><td>Firmware</td><td>0003HPM1</td></tr>
+          <tr><td>Capacidade Real</td><td>715 GB</td></tr>
+          <tr><td>RPM</td><td>7200 RPM</td></tr>
+          <tr><td>Controlador USB</td><td>ASMT1051</td></tr>
+          <tr><td>Windows</td><td style="color:#048AD0">M:</td></tr>
+          <tr><td>Linux</td><td style="color:var(--muted)">não montado</td></tr>
+        </table>
+      </div>
+      <div class="twrap">
+        <h4>Diagnóstico SMART</h4>
+        <table>
+          <tr><td>Tempo de Vida</td><td>10.053 h (~1.15 anos)</td></tr>
+          <tr><td>Ciclos de Potência</td><td><span class="warn">2.036 (alto)</span></td></tr>
+          <tr><td>Setores Realocados</td><td><span class="ok">0</span></td></tr>
+          <tr><td>Setores Pendentes</td><td><span class="crit">171 🔴 CRÍTICO</span></td></tr>
+          <tr><td>Erros Não Corrigíveis</td><td><span class="crit">939 🔴 CRÍTICO</span></td></tr>
+          <tr><td>G-Sense Error Rate</td><td><span class="crit">1.057 (impactos físicos)</span></td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- P -->
+  <div class="detail" id="pp">
+    <div class="detail-head">
+      <div class="detail-img"><img src="./storages/P Drive.png" alt="Expansion 2TB"></div>
+      <div class="detail-info">
+        <div class="detail-title">Drive P: — Seagate Expansion 2TB</div>
+        <div class="detail-sub">Fotos · HDD USB 3.0 · Externo (backup semestral)</div>
+        <div class="hbadge g">🟢 IMPECÁVEL — Disco Físico OK</div>
+        <div class="note">Disco físico perfeito. Os 8.764 erros CRC e 604 Command Timeouts são atribuídos à conexão USB/cabo, não ao disco. Testar com outro cabo USB 3.0 ou enclosure para confirmar.</div>
+      </div>
+    </div>
+    <div class="trow">
+      <div class="twrap">
+        <h4>Ficha Técnica</h4>
+        <table>
+          <tr><td>Fabricante</td><td>Seagate Technology</td></tr>
+          <tr><td>Modelo</td><td>Expansion Desk (ST2000VN004)</td></tr>
+          <tr><td>Número de Série</td><td>Z520600H</td></tr>
+          <tr><td>Interface</td><td>USB 3.0 UASP / SATA III</td></tr>
+          <tr><td>Firmware</td><td>SC60</td></tr>
+          <tr><td>Capacidade Real</td><td>1.9 TB</td></tr>
+          <tr><td>RPM</td><td>5900 RPM</td></tr>
+          <tr><td>Buffer</td><td>65536 KB</td></tr>
+          <tr><td>Windows</td><td style="color:#048AD0">P:</td></tr>
+          <tr><td>Linux</td><td style="color:var(--muted)">não montado</td></tr>
+        </table>
+      </div>
+      <div class="twrap">
+        <h4>Diagnóstico SMART</h4>
+        <table>
+          <tr><td>Tempo de Vida</td><td><span class="ok">25.485 h (~2.9 anos)</span></td></tr>
+          <tr><td>Ciclos de Potência</td><td>4.368</td></tr>
+          <tr><td>Setores Realocados</td><td><span class="ok">0</span></td></tr>
+          <tr><td>Setores Pendentes</td><td><span class="ok">0</span></td></tr>
+          <tr><td>Erros Não Corrigíveis</td><td><span class="ok">0</span></td></tr>
+          <tr><td>Erros CRC (USB)</td><td><span class="warn">8.764 (conexão USB)</span></td></tr>
+          <tr><td>Command Timeout</td><td><span class="warn">604 (conexão USB)</span></td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- R -->
+  <div class="detail" id="rr">
+    <div class="detail-head">
+      <div class="detail-img"><img src="./storages/R Drive.png" alt="IronWolf 4TB Retrogaming"></div>
+      <div class="detail-info">
+        <div class="detail-title">Drive R: — Seagate IronWolf 4TB</div>
+        <div class="detail-sub">Retrogaming · HDD SATA III · Desktop</div>
+        <div class="hbadge g">🟢 IMPECÁVEL — Maduro e Confiável</div>
+        <div class="note">IronWolf em excelente estado após 3.8 anos de operação contínua. Zero falhas — ideal para coleções estáticas como a biblioteca de Retrogaming. Pode manter mais 1–2 anos sem preocupação.</div>
+      </div>
+    </div>
+    <div class="trow">
+      <div class="twrap">
+        <h4>Ficha Técnica</h4>
+        <table>
+          <tr><td>Fabricante</td><td>Seagate Technology</td></tr>
+          <tr><td>Modelo</td><td>IronWolf (ST4000VN008-2DR166)</td></tr>
+          <tr><td>Número de Série</td><td>ZDHBVLVQ</td></tr>
+          <tr><td>Interface</td><td>SATA III (6 Gbps)</td></tr>
+          <tr><td>Firmware</td><td>SC60</td></tr>
+          <tr><td>Capacidade Real</td><td>3.8 TB</td></tr>
+          <tr><td>RPM</td><td>5900 RPM</td></tr>
+          <tr><td>Buffer</td><td>65536 KB</td></tr>
+          <tr><td>Windows</td><td style="color:#048AD0">R:</td></tr>
+          <tr><td>Linux</td><td style="color:#7D3EBB">/mnt/retro</td></tr>
+        </table>
+      </div>
+      <div class="twrap">
+        <h4>Diagnóstico SMART</h4>
+        <table>
+          <tr><td>Tempo de Vida</td><td><span class="ok">13.635 h (~1.6 anos)</span></td></tr>
+          <tr><td>Ciclos de Potência</td><td>1.719</td></tr>
+          <tr><td>Setores Realocados</td><td><span class="ok">0</span></td></tr>
+          <tr><td>Setores Pendentes</td><td><span class="ok">0</span></td></tr>
+          <tr><td>Temperatura</td><td><span class="ok">37°C</span></td></tr>
+          <tr><td>Todos Atributos SMART</td><td><span class="ok">OK — Zero falhas</span></td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- S -->
+  <div class="detail" id="ss">
+    <div class="detail-head">
+      <div class="detail-img"><img src="./storages/S Drive.png" alt="Expansion 12TB"></div>
+      <div class="detail-info">
+        <div class="detail-title">Drive S: — Seagate Expansion 12TB</div>
+        <div class="detail-sub">Media Server Backup · HDD USB 3.0 · Externo</div>
+        <div class="hbadge g">🟢 IMPECÁVEL — Media Server</div>
+        <div class="note">Drive de alta capacidade (12TB) em condição perfeita. 7200 RPM garante boa velocidade para um externo USB. Ideal como backup primário da biblioteca de mídia do Homelab. Manter H: → S: como par de espelho.</div>
+      </div>
+    </div>
+    <div class="trow">
+      <div class="twrap">
+        <h4>Ficha Técnica</h4>
+        <table>
+          <tr><td>Fabricante</td><td>Seagate Technology</td></tr>
+          <tr><td>Modelo</td><td>Expansion Desk (ST12000VN0008)</td></tr>
+          <tr><td>Número de Série</td><td>ZH3MKAD4</td></tr>
+          <tr><td>Interface</td><td>USB 3.0 UASP / SATA III</td></tr>
+          <tr><td>Firmware</td><td>DN01</td></tr>
+          <tr><td>Capacidade Real</td><td>11.4 TB</td></tr>
+          <tr><td>RPM</td><td>7200 RPM</td></tr>
+          <tr><td>Controlador USB</td><td>ASMT1051</td></tr>
+          <tr><td>Windows</td><td style="color:#048AD0">S:</td></tr>
+          <tr><td>Linux</td><td style="color:var(--muted)">não montado</td></tr>
+        </table>
+      </div>
+      <div class="twrap">
+        <h4>Diagnóstico SMART</h4>
+        <table>
+          <tr><td>Tempo de Vida</td><td><span class="ok">4.005 h (~5.5 meses)</span></td></tr>
+          <tr><td>Ciclos de Potência</td><td>352</td></tr>
+          <tr><td>Setores Realocados</td><td><span class="ok">0</span></td></tr>
+          <tr><td>Setores Pendentes</td><td><span class="ok">0</span></td></tr>
+          <tr><td>Erros Não Corrigíveis</td><td><span class="ok">0</span></td></tr>
+          <tr><td>Temperatura</td><td><span class="ok">36°C (ótima)</span></td></tr>
+          <tr><td>Self-Test</td><td><span class="ok">Sucesso (27/09/2025)</span></td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- V -->
+  <div class="detail" id="vv">
+    <div class="detail-head">
+      <div class="detail-img"><img src="./storages/V Drive.png" alt="Momentus 700GB"></div>
+      <div class="detail-info">
+        <div class="detail-title">Drive V: — Seagate Momentus 700GB</div>
+        <div class="detail-sub">Backup Portátil · HDD USB 3.0 · Externo 2.5"</div>
+        <div class="hbadge g">🟢 ÓTIMA — Backup Portátil</div>
+        <div class="note">Momentus SATA II de 7200 RPM em muito boa condição para sua idade (fabricado em junho de 2012) — zero falhas reportadas. Perfeito como drive de backup portátil ou transferência de dados.</div>
+      </div>
+    </div>
+    <div class="trow">
+      <div class="twrap">
+        <h4>Ficha Técnica</h4>
+        <table>
+          <tr><td>Fabricante</td><td>Seagate Technology</td></tr>
+          <tr><td>Modelo</td><td>Momentus 7200.5 (ST9750422AS)</td></tr>
+          <tr><td>Número de Série</td><td>6WS2KZDG</td></tr>
+          <tr><td>Interface</td><td>USB 3.0 UASP / SATA II</td></tr>
+          <tr><td>Firmware</td><td>0001BSM1</td></tr>
+          <tr><td>Capacidade Real</td><td>715 GB</td></tr>
+          <tr><td>RPM</td><td>7200 RPM</td></tr>
+          <tr><td>Data de Fabricação</td><td>Junho 2012</td></tr>
+          <tr><td>Windows</td><td style="color:#048AD0">V:</td></tr>
+          <tr><td>Linux</td><td style="color:var(--muted)">não montado</td></tr>
+        </table>
+      </div>
+      <div class="twrap">
+        <h4>Diagnóstico SMART</h4>
+        <table>
+          <tr><td>Tempo de Vida</td><td><span class="ok">6.815 h (~9.4 meses)</span></td></tr>
+          <tr><td>Ciclos de Potência</td><td>2.569</td></tr>
+          <tr><td>Setores Realocados</td><td><span class="ok">0</span></td></tr>
+          <tr><td>Setores Pendentes</td><td><span class="ok">0</span></td></tr>
+          <tr><td>Erros Não Corrigíveis</td><td><span class="ok">0</span></td></tr>
+          <tr><td>Ciclos de Carga</td><td>59.523</td></tr>
+          <tr><td>Todos Atributos SMART</td><td><span class="ok">OK — Zero falhas</span></td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Z -->
+  <div class="detail" id="zz">
+    <div class="detail-head crit-border">
+      <div class="detail-img"><img src="./storages/Z Drive.png" alt="Barracuda 4TB"></div>
+      <div class="detail-info">
+        <div class="detail-title">Drive Z: — Seagate Barracuda 4TB <span style="color:var(--red)">☠ ZOMBIE DRIVE</span></div>
+        <div class="detail-sub">Falha Progressiva · HDD SATA III · Desktop</div>
+        <div class="hbadge r">🔴 ALTO RISCO — Falha Progressiva</div>
+        <div class="note crit-note">EMERGÊNCIA: 1.208 setores realocados e 2.445 erros não corrigíveis confirmam falha progressiva. O Barracuda 4TB completou seu ciclo de vida útil. Retire de operação imediatamente. Migre dados para H:, S: ou R:. Use exclusivamente para dados dispensáveis.</div>
+      </div>
+    </div>
+    <div class="trow">
+      <div class="twrap">
+        <h4>Ficha Técnica</h4>
+        <table>
+          <tr><td>Fabricante</td><td>Seagate Technology</td></tr>
+          <tr><td>Modelo</td><td>Barracuda 7200.12 (ST4000DM000)</td></tr>
+          <tr><td>Número de Série</td><td>W301A371</td></tr>
+          <tr><td>Interface</td><td>SATA III (6 Gbps)</td></tr>
+          <tr><td>Firmware</td><td>CC54</td></tr>
+          <tr><td>Capacidade Real</td><td>3.8 TB</td></tr>
+          <tr><td>RPM</td><td>5900 RPM</td></tr>
+          <tr><td>Buffer</td><td>65536 KB</td></tr>
+          <tr><td>Windows</td><td style="color:#048AD0">Z:</td></tr>
+          <tr><td>Linux</td><td style="color:#7D3EBB">/mnt/zombie</td></tr>
+        </table>
+      </div>
+      <div class="twrap">
+        <h4>Diagnóstico SMART</h4>
+        <table>
+          <tr><td>Tempo de Vida</td><td><span class="warn">39.396 h (~4.5 anos)</span></td></tr>
+          <tr><td>Ciclos de Potência</td><td><span class="warn">3.326</span></td></tr>
+          <tr><td>Setores Realocados</td><td><span class="crit">1.208 🔴 CRÍTICO</span></td></tr>
+          <tr><td>Setores Pendentes</td><td><span class="ok">0</span></td></tr>
+          <tr><td>Erros Não Corrigíveis</td><td><span class="crit">2.445 🔴 CRÍTICO</span></td></tr>
+          <tr><td>Erros CRC</td><td><span class="ok">0</span></td></tr>
+          <tr><td>Temperatura</td><td><span class="ok">36°C</span></td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ── Risk Matrix ── -->
+<section>
+  <h2 class="sec-title">Matriz de Risco</h2>
+  <div class="risk-wrap">
+    <table class="risk-table">
+      <thead>
+        <tr>
+          <th>Drive</th>
+          <th>Modelo</th>
+          <th>Risco</th>
+          <th>Ação Recomendada</th>
+          <th>Urgência</th>
+          <th>Prazo</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="rh">
+          <td><strong>Z:</strong></td>
+          <td>Barracuda 4TB</td>
+          <td><span class="rbadge r">🔴 CRÍTICO</span></td>
+          <td>Remover de operação, migrar dados</td>
+          <td><span class="ubadge imm">IMEDIATO</span></td>
+          <td>Hoje</td>
+        </tr>
+        <tr class="rm">
+          <td><strong>M:</strong></td>
+          <td>Momentus 750GB</td>
+          <td><span class="rbadge y">⚠ MÉDIO-ALTO</span></td>
+          <td>Migrar dados críticos imediatamente</td>
+          <td><span class="ubadge hi">ALTA</span></td>
+          <td>1–2 semanas</td>
+        </tr>
+        <tr class="rl">
+          <td><strong>P:</strong></td>
+          <td>Expansion 2TB</td>
+          <td><span class="rbadge g">✅ BAIXO</span></td>
+          <td>Testar cabo USB / enclosure</td>
+          <td><span class="ubadge nor">—</span></td>
+          <td>ASAP</td>
+        </tr>
+        <tr class="rl">
+          <td><strong>C/G:</strong></td>
+          <td>Samsung 980 PRO</td>
+          <td><span class="rbadge g">✅ BAIXO</span></td>
+          <td>Manutenção normal</td>
+          <td><span class="ubadge nor">—</span></td>
+          <td>Contínuo</td>
+        </tr>
+        <tr class="rl">
+          <td><strong>D:</strong></td>
+          <td>IronWolf 4TB (Dados)</td>
+          <td><span class="rbadge g">✅ BAIXO</span></td>
+          <td>Manutenção normal</td>
+          <td><span class="ubadge nor">—</span></td>
+          <td>Contínuo</td>
+        </tr>
+        <tr class="rl">
+          <td><strong>H:</strong></td>
+          <td>Exos X24 24TB</td>
+          <td><span class="rbadge g">✅ NENHUM</span></td>
+          <td>Monitorar SMART mensalmente</td>
+          <td><span class="ubadge nor">—</span></td>
+          <td>Contínuo</td>
+        </tr>
+        <tr class="rl">
+          <td><strong>R:</strong></td>
+          <td>IronWolf 4TB (Retrogaming)</td>
+          <td><span class="rbadge g">✅ BAIXO</span></td>
+          <td>Manutenção normal</td>
+          <td><span class="ubadge nor">—</span></td>
+          <td>Contínuo</td>
+        </tr>
+        <tr class="rl">
+          <td><strong>S:</strong></td>
+          <td>Expansion 12TB</td>
+          <td><span class="rbadge g">✅ BAIXO</span></td>
+          <td>Manutenção normal</td>
+          <td><span class="ubadge nor">—</span></td>
+          <td>Contínuo</td>
+        </tr>
+        <tr class="rl">
+          <td><strong>V:</strong></td>
+          <td>Momentus 700GB</td>
+          <td><span class="rbadge g">✅ BAIXO</span></td>
+          <td>Manutenção normal</td>
+          <td><span class="ubadge nor">—</span></td>
+          <td>Contínuo</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ── Action Plan ── -->
+<section>
+  <h2 class="sec-title">Plano de Ação</h2>
+  <div class="actions">
+    <div class="aitem ac">
+      <div class="aicon">☠️</div>
+      <div class="acontent">
+        <h4>Z: Barracuda — Remover de operação <span class="atag c">IMEDIATO</span></h4>
+        <p>Drive com 1.208 setores realocados e 2.445 erros não corrigíveis. Migrar todos os dados para H:, S: ou R:. Descartar ou usar exclusivamente para dados dispensáveis e já duplicados.</p>
+      </div>
+    </div>
+    <div class="aitem aw">
+      <div class="aicon">⚠️</div>
+      <div class="acontent">
+        <h4>M: Momentus — Migrar dados <span class="atag w">1–2 SEMANAS</span></h4>
+        <p>171 setores pendentes e 939 erros não corrigíveis indicam risco real de perda. Não usar como único backup. Migrar dados críticos antes que o drive falhe completamente.</p>
+      </div>
+    </div>
+    <div class="aitem ai">
+      <div class="aicon">🔌</div>
+      <div class="acontent">
+        <h4>P: Expansion — Testar cabo USB</h4>
+        <p>Disco físico perfeito. Os 8.764 erros CRC são provavelmente do cabo ou enclosure USB. Testar com outro cabo antes de qualquer decisão sobre o hardware.</p>
+      </div>
+    </div>
+    <div class="aitem ai">
+      <div class="aicon">📊</div>
+      <div class="acontent">
+        <h4>H: Exos X24 — Monitoramento SMART mensal</h4>
+        <p>Drive mais confiável do setup e coração do homelab. Verificar SMART todo mês. Manter backup H: → S: como par de espelho para a biblioteca de mídia.</p>
+      </div>
+    </div>
+    <div class="aitem ai">
+      <div class="aicon">🔒</div>
+      <div class="acontent">
+        <h4>Implementar Backup 3-2-1</h4>
+        <p>3 cópias de dados críticos, em 2 mídias diferentes, com 1 cópia offsite (nuvem ou local seguro). Prioridade após resolver Z: e M:.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Stats ── -->
+<section>
+  <h2 class="sec-title">Estatísticas</h2>
+  <div class="stat2">
+    <div class="scap">
+      <h4>Capacidade por Tipo</h4>
+      <div class="caprow">
+        <span class="caplbl">SSD NVMe</span>
+        <div class="capbar-wrap"><div class="capbar bb" style="width:1.5%"></div></div>
+        <span class="capval">953 GB</span>
+      </div>
+      <div class="caprow">
+        <span class="caplbl">HDD Interno</span>
+        <div class="capbar-wrap"><div class="capbar bo" style="width:17.5%"></div></div>
+        <span class="capval">11.4 TB</span>
+      </div>
+      <div class="caprow">
+        <span class="caplbl">HDD Externo</span>
+        <div class="capbar-wrap"><div class="capbar bg" style="width:81%"></div></div>
+        <span class="capval">52.5 TB</span>
+      </div>
+      <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);font-size:0.8rem;color:var(--muted)">
+        Total: <strong style="color:var(--text)">~64.9 TB</strong> em 9 drives (1 SSD + 3 HDD internos + 5 HDD externos)
+      </div>
+    </div>
+    <div class="scap">
+      <h4>Distribuição de Saúde</h4>
+      <div class="hrow">
+        <div class="hdot g"></div>
+        <span class="hcount" style="color:var(--green)">7</span>
+        <span style="flex:1">Impecável / Ótimo</span>
+        <span style="font-size:0.76rem;color:var(--muted)">C/G, D, H, P, R, S, V</span>
+      </div>
+      <div class="hrow">
+        <div class="hdot y"></div>
+        <span class="hcount" style="color:var(--yellow)">1</span>
+        <span style="flex:1">Em Risco</span>
+        <span style="font-size:0.76rem;color:var(--muted)">M</span>
+      </div>
+      <div class="hrow">
+        <div class="hdot r"></div>
+        <span class="hcount" style="color:var(--red)">1</span>
+        <span style="flex:1">Crítico</span>
+        <span style="font-size:0.76rem;color:var(--muted)">Z</span>
+      </div>
+      <div class="hbar-wrap">
+        <div style="width:77.8%;background:var(--green)"></div>
+        <div style="width:11.1%;background:var(--yellow)"></div>
+        <div style="width:11.1%;background:var(--red)"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:0.7rem;color:var(--muted);margin-top:0.4rem">
+        <span style="color:var(--green)">78% saudáveis</span>
+        <span style="color:var(--yellow)">11% risco</span>
+        <span style="color:var(--red)">11% crítico</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Checklist ── -->
+<section>
+  <h2 class="sec-title">Checklist de Segurança</h2>
+  <div class="checks">
+    <div class="chk"><div class="chkbox"></div><span>Backup de dados críticos no drive H: (Exos 24TB)</span></div>
+    <div class="chk"><div class="chkbox"></div><span>S: testado para backup de mídia do homelab</span></div>
+    <div class="chk"><div class="chkbox"></div><span>Z: removido de operação</span></div>
+    <div class="chk"><div class="chkbox"></div><span>M: dados migrados ou drive descartado</span></div>
+    <div class="chk"><div class="chkbox"></div><span>P: testado com cabo USB alternativo</span></div>
+    <div class="chk"><div class="chkbox"></div><span>Plano 3-2-1 implementado</span></div>
+    <div class="chk"><div class="chkbox"></div><span>Monitoramento SMART mensal ativado</span></div>
+    <div class="chk"><div class="chkbox"></div><span>Teste de restore realizado nos últimos 3 meses</span></div>
+  </div>
+</section>
+
+<footer>
+  <p>Storage Array Inventory · Homelab mfrafael · Atualizado em Maio 2026</p>
+  <p><a href="https://github.com/mfrafael/homelab">github.com/mfrafael/homelab</a></p>
+</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const counters = document.querySelectorAll('[data-count]');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      const el = entry.target;
+      const target = parseFloat(el.dataset.count);
+      const suffix = el.dataset.suffix || '';
+      const isFloat = target % 1 !== 0;
+      const duration = 1000;
+      const start = performance.now();
+      const tick = now => {
+        const p = Math.min((now - start) / duration, 1);
+        const eased = 1 - Math.pow(1 - p, 3);
+        el.textContent = (isFloat ? (target * eased).toFixed(1) : Math.round(target * eased)) + suffix;
+        if (p < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+      observer.unobserve(el);
+    });
+  }, { threshold: 0.5 });
+  counters.forEach(c => observer.observe(c));
+});
+</script>
+</body>
+</html>
